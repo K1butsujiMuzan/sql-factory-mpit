@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@import "./normalize.css";
+
+@theme inline {
+  --color-gray-100: #E6E6E6;
+  --color-gray-200: #F6F6F6;
+  --color-gray-300: rgba(217, 217, 217, 1);
+  --color-gray-400: rgba(178, 178, 178, 1);
+  --color-purple-400: #5659E9;
+  --color-dark: rgba(34, 34, 34, 1);
+  --radius-20: 1.25rem;
+}
