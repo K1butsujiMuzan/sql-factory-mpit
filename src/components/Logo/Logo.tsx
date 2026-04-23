@@ -1,12 +1,19 @@
-import Link from "next/link";
-import {PAGES} from "@/configs/pages.config";
+import Link from 'next/link'
+import { PAGES } from '@/configs/pages.config'
 
-const Logo = () => {
-  return (
-    <Link href={PAGES.CHAT()}>
-      SQLFactory
-    </Link>
-  )
+interface Props {
+	dbId?: string
+}
+
+const Logo = ({ dbId }: Props) => {
+	return (
+		<Link
+			href={dbId ? PAGES.CHAT(dbId) : PAGES.MAIN}
+			className={'text-gray-light'}
+		>
+			SQLFactory
+		</Link>
+	)
 }
 
 export default Logo

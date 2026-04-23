@@ -1,11 +1,17 @@
-import {z} from "zod";
-import {DATABASES} from "@/components/LinkForm/link-form.data";
+import { z } from 'zod'
+import { DATABASES } from '@/components/LinkForm/link-form.data'
 
 export const dbLinkSchema = z.object({
-  link: z.string({error: 'Некорректная ссылка'}).regex(/^(mongodb(\+srv)?|postgres(ql)?|mysql|redis|jdbc:[a-z]+):\/\/(.+:.+@)?([a-zA-Z0-9.-]+)(:[0-9]+)?(\/.*)?$/, {
-    error: 'некорректная ссылка'
-  }),
-  dbType: z.enum([DATABASES.MYSQL, DATABASES.POSTGRESQL])
+	host: z.string().min(1, { error: 'Хост обязателен' }),
+	port: z
+		.number()
+		.int()
+		.min(1, { error: 'Порт не может быть меньше 1' })
+		.max(65535, { error: 'Порт не может быть больше 65535' }),
+	user: z.string().min(1, 'Имя пользователя обязательно'),
+	password: z.string(),
+	dbName: z.string().min(1, 'Имя базы данных обязательно'),
+	dbType: z.enum([DATABASES.MYSQL, DATABASES.POSTGRESQL])
 })
 
 export type TDbLink = z.infer<typeof dbLinkSchema>

@@ -1,66 +1,66 @@
 *,
 ::before,
 ::after {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 body {
-  background-color: inherit;
-  color: inherit;
-  transition: inherit;
-  margin: 0;
-  height: 100%;
+	background-color: inherit;
+	color: inherit;
+	transition: inherit;
+	margin: 0;
+	height: 100%;
 }
 
 main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 #root {
-  height: 100%;
-  display: flex;
+	height: 100%;
+	display: flex;
 }
 
 :where([fill]:not([fill='none'], [fill^='url'])) {
-  fill: currentColor;
+	fill: currentColor;
 }
 
 :where([stroke]:not([stroke='none'], [stroke^='url'])) {
-  stroke: currentColor;
+	stroke: currentColor;
 }
 
 svg * {
-  transition-property: fill, stroke;
+	transition-property: fill, stroke;
 }
 
 html {
-  height: 100%;
-  scroll-behavior: smooth;
+	height: 100%;
+	scroll-behavior: smooth;
 }
 
 button,
 label {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 button {
-  -webkit-tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent;
 }
 
 main {
-  flex: 1;
+	flex: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }

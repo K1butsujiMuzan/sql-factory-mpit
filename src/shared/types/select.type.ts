@@ -1,4 +1,4 @@
 export type TSelect = {
-  text: string
-  value: string
+	text: string
+	value: string
 }

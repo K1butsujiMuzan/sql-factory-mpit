@@ -1,12 +1,15 @@
-@import "tailwindcss";
-@import "./normalize.css";
+@import 'tailwindcss';
+@import './normalize.css';
 
-@theme inline {
-  --color-gray-100: #E6E6E6;
-  --color-gray-200: #F6F6F6;
-  --color-gray-300: rgba(217, 217, 217, 1);
-  --color-gray-400: rgba(178, 178, 178, 1);
-  --color-purple-400: #5659E9;
-  --color-dark: rgba(34, 34, 34, 1);
-  --radius-20: 1.25rem;
+@theme {
+	--color-dark: #14141a;
+	--color-accent: #7161ef;
+	--color-accent-light: #b7b1e9;
+	--color-dark-menu: #0c0f0a;
+	--color-gray-main: #535657;
+	--color-gray-light: #d9d9d9;
+	--color-error: #6b6b6b;
+
+	--radius-20: 1.25rem;
+	--font-public-sans: var(--font-public-sans);
 }
