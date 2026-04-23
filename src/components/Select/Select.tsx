@@ -22,7 +22,7 @@ const Select = ({ list, selectId, selectLabel, ...rest }: Props) => {
 				}
 			>
 				{list.map(({ text, value }, index) => (
-					<option className={'bg-dark'} key={value} value={value}>
+					<option className={'bg-white'} key={value} value={value}>
 						{text}
 					</option>
 				))}
