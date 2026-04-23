@@ -1,19 +1,12 @@
 import type { Metadata } from 'next'
+import DictionaryView from '@/components/Dictionary/DictionaryView'
 
 export const metadata: Metadata = {
 	title: 'Словарь'
 }
 
 const DictionaryPage = () => {
-	return (
-		<section>
-			<div>
-				<span>Слово</span>
-				<span>Значение</span>
-			</div>
-			<ul></ul>
-		</section>
-	)
+	return <DictionaryView />
 }
 
 export default DictionaryPage
