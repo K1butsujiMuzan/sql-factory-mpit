@@ -1,4 +1,7 @@
 import Aside from '@/components/Aside/Aside'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { PAGES } from '@/configs/pages.config'
 
 interface Props {
 	params: Promise<{ dbId: string }>
@@ -7,6 +10,16 @@ interface Props {
 
 export default async function ChatLayout({ children, params }: Props) {
 	const { dbId } = await params
+	const cookieStore = await cookies()
+	const dbIdFromCookie = cookieStore.get('db_id')?.value
+
+	if (!dbIdFromCookie) {
+		return redirect(PAGES.MAIN)
+	}
+
+	if (dbId !== dbIdFromCookie) {
+		return redirect(PAGES.CHAT(dbIdFromCookie))
+	}
 
 	return (
 		<>

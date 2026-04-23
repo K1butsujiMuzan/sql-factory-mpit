@@ -10,7 +10,8 @@ import { PAGES } from '@/configs/pages.config'
 import Select from '@/components/Select/Select'
 import { linkFormData } from '@/components/LinkForm/link-form.data'
 import { API } from '@/configs/api.config'
-import Logo from '@/components/Logo/Logo'
+import { setDb } from '@/stores/db-store'
+import Cookies from 'js-cookie'
 
 const LinkForm = () => {
 	const router = useRouter()
@@ -19,7 +20,7 @@ const LinkForm = () => {
 		control,
 		handleSubmit,
 		setError,
-		formState: { errors, isSubmitting, isValid }
+		formState: { errors, isSubmitting }
 	} = useForm<TDbLink>({
 		resolver: zodResolver(dbLinkSchema),
 		defaultValues: {
@@ -35,10 +36,6 @@ const LinkForm = () => {
 	})
 
 	const onFormSubmit: SubmitHandler<TDbLink> = async (data) => {
-		if (!isValid) {
-			return
-		}
-
 		const formData = new URLSearchParams()
 
 		formData.append('host', data.host)
@@ -60,7 +57,6 @@ const LinkForm = () => {
 
 			if (!response.ok) {
 				return setError('dbType', { message: 'ошибка подключения к бд' })
-
 			}
 
 			const serverData: { id: string } | { error: string } =
@@ -70,6 +66,8 @@ const LinkForm = () => {
 				return setError('dbType', { message: serverData.error })
 			}
 
+			setDb(data)
+			Cookies.set('db_id', serverData.id, { expires: 7, path: '/' })
 			router.push(PAGES.CHAT(serverData.id))
 		} catch (error) {
 			console.error(error)

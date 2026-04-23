@@ -5,7 +5,7 @@
 	--color-dark: #14141a;
 
 	--color-accent: #1daf61;
-	--color-accent-light: #C2F5DA;
+	--color-accent-light: #c2f5da;
 	--color-error: #fb3748;
 	--color-error-100: #f3747f;
 	--color-dark-menu: #0c0f0a;
@@ -13,7 +13,7 @@
 	--color-gray-100: #ebebeb;
 	--color-gray-200: #a3a3a3;
 	--color-gray-light: #d9d9d9;
-	--color-icon-dark: #33363F;
+	--color-icon-dark: #33363f;
 
 	--radius-20: 1.25rem;
 	--font-inter: var(--font-inter);

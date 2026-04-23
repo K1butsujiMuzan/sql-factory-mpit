@@ -10,7 +10,7 @@ const BackLink = ({ dbId }: Props) => {
 		<Link
 			href={PAGES.CHAT(dbId)}
 			className={
-				'absolute left-0 top-0 py-2.5 px-3 rounded-20 border text-white border-white'
+				'absolute left-0 top-0 py-2.5 px-3 rounded-20 border border-gray-100'
 			}
 		>
 			<svg

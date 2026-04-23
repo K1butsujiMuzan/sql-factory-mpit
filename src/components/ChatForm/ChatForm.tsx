@@ -5,12 +5,21 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Input from '@/components/Input/Input'
 import ErrorMessage from '@/components/ErrorMessage/ErrorMessage'
 import { chatSchema, type TChat } from '@/shared/schemes/chat.schema'
+import { getDbData, setDb } from '@/stores/db-store'
+import { API } from '@/configs/api.config'
+import { PAGES } from '@/configs/pages.config'
+import { useRouter } from 'next/navigation'
 
-const ChatForm = () => {
+interface Props {
+	dbId: string
+}
+
+const ChatForm = ({ dbId }: Props) => {
 	const {
 		control,
 		handleSubmit,
-		formState: { errors, isSubmitting, isValid }
+		setError,
+		formState: { errors, isSubmitting }
 	} = useForm<TChat>({
 		resolver: zodResolver(chatSchema),
 		defaultValues: {
@@ -20,8 +29,46 @@ const ChatForm = () => {
 		reValidateMode: 'onSubmit'
 	})
 
-	const onFormSubmit: SubmitHandler<TChat> = (data) => {
-		console.log(data)
+	const router = useRouter()
+
+	const onFormSubmit: SubmitHandler<TChat> = async (data) => {
+		const dbData = getDbData()
+
+		const formData = new URLSearchParams()
+
+		formData.append('host', dbData.host)
+		formData.append('port', dbData.port.toString())
+		formData.append('user', dbData.user)
+		formData.append('password', dbData.password)
+		formData.append('database', dbData.dbName)
+		formData.append('db_type', dbData.dbType)
+		formData.append('prompt', data.text)
+
+		try {
+			const response = await fetch(API.CREATE_PROMPT, {
+				method: 'POST',
+				body: formData,
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzIjoxNzgwNTQ1NDEyLCJpZCI6MX0.N9UPxyoC48wYuuBN3HC4oXhPMYVlkI_d-b792ZXCJC11J2BWwIdZ_4jsTFDAfMX85QS-CCroU_RubEL73MFQlA`
+				}
+			})
+
+			if (!response.ok) {
+				return setError('text', { message: 'что-то пошло не так...' })
+			}
+
+			const serverData: { id: string } | { error: string } =
+				await response.json()
+
+			if ('error' in serverData) {
+				return setError('text', { message: serverData.error })
+			}
+			console.log(serverData)
+		} catch (error) {
+			console.error(error)
+			setError('text', { message: 'что-то пошло не так...' })
+		}
 	}
 
 	return (
@@ -48,8 +95,11 @@ const ChatForm = () => {
 					control={control}
 				/>
 				<button
+					disabled={isSubmitting}
 					type={'submit'}
-					className={'text-sm py-1.5 px-1.5 text-icon-dark bg-accent-light rounded-full'}
+					className={
+						'text-sm py-1.5 px-1.5 text-icon-dark bg-accent-light rounded-full disabled:cursor-not-allowed!'
+					}
 				>
 					<svg
 						role={'img'}

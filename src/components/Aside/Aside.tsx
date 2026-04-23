@@ -125,7 +125,10 @@ const Aside = ({ dbId }: Props) => {
 						<AsideLink label={'Новый чат'} href={PAGES.CHAT(dbId)} />
 					)}
 					<AsideButton
-						isActive={pathname.startsWith(PAGES.CHAT(dbId)) && pathname !== PAGES.CHAT(dbId)}
+						isActive={
+							pathname.startsWith(PAGES.CHAT(dbId)) &&
+							pathname !== PAGES.CHAT(dbId)
+						}
 						onClick={() => onMenuButtonClick('history')}
 						label={'История'}
 					/>

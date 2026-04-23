@@ -12,9 +12,12 @@ const AsideLink = ({ href, label, isActive }: Props) => {
 	return (
 		<li>
 			<Link
-				className={cn('px-3 py-1 rounded-20 flex items-center w-full justify-between', {
-					'bg-gray-100': isActive
-				})}
+				className={cn(
+					'px-3 py-1 rounded-20 flex items-center w-full justify-between',
+					{
+						'bg-gray-100': isActive
+					}
+				)}
 				href={href}
 			>
 				<span className={'truncate'}>{label}</span>

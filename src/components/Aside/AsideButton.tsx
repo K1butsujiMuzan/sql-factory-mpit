@@ -13,9 +13,12 @@ const AsideButton = ({ onClick, label, isActive }: Props) => {
 	return (
 		<li className={'truncate'}>
 			<button
-				className={cn('px-3 py-1 rounded-20 flex items-center w-full justify-between', {
-					'bg-gray-100': isActive
-				})}
+				className={cn(
+					'px-3 py-1 rounded-20 flex items-center w-full justify-between',
+					{
+						'bg-gray-100': isActive
+					}
+				)}
 				type={'button'}
 				onClick={onClick}
 			>
