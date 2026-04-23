@@ -104,19 +104,19 @@ const Aside = ({ dbId }: Props) => {
 				onTransitionEnd={handleTransitionEnd}
 				onTransitionStart={handleTransitionStart}
 				inert={!isOpen}
-				className={cn('w-42 bg-white py-5  transition duration-300', {
+				className={cn('w-54 bg-white py-5  transition duration-300', {
 					'opacity-100 translate-x-0 pointer-events-auto': isOpen,
 					'opacity-0 -translate-x-full pointer-events-none': !isOpen,
 					hidden: isHidden
 				})}
 			>
-				<div className={'flex items-center justify-between pr-3 pl-5 pb-11.5'}>
+				<div className={'flex items-center justify-between pr-5.5 pl-3 pb-10'}>
 					<Logo dbId={dbId} />
 					<AsideToggleButton onClick={onToggleIsOpen} isOpen={isOpen} />
 				</div>
 				<ul
 					className={
-						'flex flex-col gap-2.5 pb-7.5 pl-2 pr-3 border-b border-gray-main'
+						'flex flex-col gap-2.5 pb-5 pr-5.5 pl-3 border-b border-gray-main'
 					}
 				>
 					{pathname === PAGES.CHAT(dbId) ? (
@@ -125,7 +125,7 @@ const Aside = ({ dbId }: Props) => {
 						<AsideLink label={'Новый чат'} href={PAGES.CHAT(dbId)} />
 					)}
 					<AsideButton
-						isActive={pathname.startsWith(PAGES.CHAT(dbId))}
+						isActive={pathname.startsWith(PAGES.CHAT(dbId)) && pathname !== PAGES.CHAT(dbId)}
 						onClick={() => onMenuButtonClick('history')}
 						label={'История'}
 					/>

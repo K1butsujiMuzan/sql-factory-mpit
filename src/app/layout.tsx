@@ -1,13 +1,6 @@
 import type { Metadata } from 'next'
-import { Public_Sans } from 'next/font/google'
 import '../styles/index.css'
-
-const publicSans = Public_Sans({
-	variable: '--font-public-sans',
-	subsets: ['latin'],
-	style: 'normal',
-	display: 'swap'
-})
+import { INTER } from '@/configs/fonts.config'
 
 export const metadata: Metadata = {
 	title: {
@@ -23,8 +16,8 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<html lang="en" className={`${publicSans.variable} h-full antialiased`}>
-			<body className="min-h-full flex flex-col font-public-sans">
+		<html lang="en" className={`${INTER.variable} h-full antialiased`}>
+			<body className="min-h-full flex flex-col font-inter">
 				<div id="root" className={'bg-white text-dark-menu'}>
 					{children}
 				</div>

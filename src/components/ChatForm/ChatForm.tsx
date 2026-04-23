@@ -49,7 +49,7 @@ const ChatForm = () => {
 				/>
 				<button
 					type={'submit'}
-					className={'text-sm py-1.5 px-1.5 bg-gray-light rounded-full'}
+					className={'text-sm py-1.5 px-1.5 text-icon-dark bg-accent-light rounded-full'}
 				>
 					<svg
 						role={'img'}

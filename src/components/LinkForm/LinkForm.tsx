@@ -54,24 +54,23 @@ const LinkForm = () => {
 				body: formData,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzIjoxNzc2OTQ0NzI5LCJpZCI6MX0.CB7Z7gm06MRsmCSFJ49Aat27sUsTqb_cYNipI-v_TRRepi11XeA1MyqPVZ8ffAahNEkomgQ3w3ENJeY7PgiGyA`
+					authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzIjoxNzgwNTQ1NDEyLCJpZCI6MX0.N9UPxyoC48wYuuBN3HC4oXhPMYVlkI_d-b792ZXCJC11J2BWwIdZ_4jsTFDAfMX85QS-CCroU_RubEL73MFQlA`
 				}
 			})
 
 			if (!response.ok) {
-				setError('dbType', { message: 'ошибка подключения к бд' })
-				return
+				return setError('dbType', { message: 'ошибка подключения к бд' })
+
 			}
 
 			const serverData: { id: string } | { error: string } =
 				await response.json()
 
 			if ('error' in serverData) {
-				setError('dbType', { message: serverData.error })
-				return
+				return setError('dbType', { message: serverData.error })
 			}
 
-			console.log(serverData)
+			router.push(PAGES.CHAT(serverData.id))
 		} catch (error) {
 			console.error(error)
 			setError('dbType', { message: 'что-то пошло не так...' })
@@ -83,18 +82,23 @@ const LinkForm = () => {
 			className={'w-full flex flex-col gap-7.5 items-center'}
 			onSubmit={handleSubmit(onFormSubmit)}
 		>
-			<Controller
-				render={({ field }) => (
-					<Select
-						list={linkFormData}
-						{...field}
-						selectId={'db-type'}
-						selectLabel={'Тип базы данных'}
-					/>
+			<div className={'flex gap-1 flex-col w-full'}>
+				<Controller
+					render={({ field }) => (
+						<Select
+							list={linkFormData}
+							{...field}
+							selectId={'db-type'}
+							selectLabel={'Тип базы данных'}
+						/>
+					)}
+					name={'dbType'}
+					control={control}
+				/>
+				{!!errors.dbType?.message && (
+					<ErrorMessage message={errors.dbType?.message} />
 				)}
-				name={'dbType'}
-				control={control}
-			/>
+			</div>
 			<div className={'flex gap-1 flex-col w-full'}>
 				<div
 					className={
@@ -202,9 +206,10 @@ const LinkForm = () => {
 				)}
 			</div>
 			<button
+				disabled={isSubmitting}
 				type={'submit'}
 				className={
-					'pt-1.5 pb-2 bg-accent text-white rounded-20 max-w-71.5 w-full'
+					'pt-1.5 pb-2 bg-accent text-white rounded-20 max-w-71.5 w-full disabled:cursor-not-allowed!'
 				}
 			>
 				Войти
