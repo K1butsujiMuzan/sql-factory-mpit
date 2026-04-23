@@ -3,13 +3,14 @@
 
 @theme {
 	--color-dark: #14141a;
+
 	--color-accent: #1daf61;
-	--color-accent-light: #b7b1e9;
+	--color-accent-light: #1daf61;
+	--color-error: #fb3748;
 	--color-dark-menu: #0c0f0a;
-	--color-gray-main: #535657;
-	--color-gray-light: #d9d9d9;
-	--color-error: #6b6b6b;
+	--color-gray-main: #5c5c5c;
 	--color-gray-100: #ebebeb;
+	--color-gray-light: #d9d9d9;
 
 	--radius-20: 1.25rem;
 	--font-public-sans: var(--font-public-sans);

@@ -4,15 +4,17 @@ interface Props {
 	onClick: () => void
 	isOpen: boolean
 	className?: string
+	disabled?: boolean
 }
 
-const AsideToggleButton = ({ onClick, isOpen, className }: Props) => {
+const AsideToggleButton = ({ onClick, isOpen, className, disabled }: Props) => {
 	return (
 		<button
+			disabled={disabled}
 			onClick={onClick}
-			className={cn('p-0.75 rounded-full', className, {
-				'text-white': isOpen,
-				'text-dark-menu bg-white': !isOpen
+			className={cn('p-0.75 rounded-full text-dark-menu', className, {
+				'': isOpen,
+				'': !isOpen
 			})}
 			type={'button'}
 		>

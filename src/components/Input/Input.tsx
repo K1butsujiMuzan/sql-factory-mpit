@@ -15,7 +15,7 @@ const Input = ({ label, inputId, className, ...rest }: Props) => {
 			</label>
 			<input
 				className={cn(
-					'[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm placeholder:text-gray-light outline-none text-gray-light w-full',
+					'[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm placeholder:text-gray-main outline-none text-gray-main w-full',
 					className
 				)}
 				placeholder={label}

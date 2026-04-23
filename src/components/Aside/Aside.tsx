@@ -92,19 +92,14 @@ const Aside = ({ dbId }: Props) => {
 
 	return (
 		<>
-			<div
-				inert={isOpen}
-				className={cn('absolute top-5 left-5 transition duration-300', {
-					'pointer-events-none opacity-0': isOpen,
-					'pointer-events-auto opacity-100': !isOpen
-				})}
-			>
-				<AsideToggleButton
-					onClick={onToggleIsOpen}
-					isOpen={isOpen}
-					className={'px-3'}
-				/>
-			</div>
+			<AsideToggleButton
+				disabled={isOpen}
+				onClick={onToggleIsOpen}
+				isOpen={isOpen}
+				className={
+					'px-3 rounded-20 border border-gray-100 absolute top-5 left-5 transition duration-300'
+				}
+			/>
 			<aside
 				onTransitionEnd={handleTransitionEnd}
 				onTransitionStart={handleTransitionStart}

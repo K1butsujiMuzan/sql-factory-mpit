@@ -18,7 +18,7 @@ const Select = ({ list, selectId, selectLabel, ...rest }: Props) => {
 				{...rest}
 				id={selectId}
 				className={
-					'peer cursor-pointer appearance-none text-sm text-gray-light outline-none w-full border border-gray-main rounded-20 px-3 py-2.5'
+					'peer cursor-pointer appearance-none text-sm text-gray-main outline-none w-full border border-gray-main rounded-20 px-3 py-2.5'
 				}
 			>
 				{list.map(({ text, value }, index) => (

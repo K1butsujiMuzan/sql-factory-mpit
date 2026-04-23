@@ -39,7 +39,7 @@ const LinkForm = () => {
 			return
 		}
 
-		const formData = new FormData()
+		const formData = new URLSearchParams()
 
 		formData.append('host', data.host)
 		formData.append('port', data.port.toString())
@@ -53,18 +53,25 @@ const LinkForm = () => {
 				method: 'POST',
 				body: formData,
 				headers: {
-					authorization: `Bearer ${process.env.TEST_BEARER}`
+					'Content-Type': 'application/x-www-form-urlencoded',
+					authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzIjoxNzc2OTQ0NzI5LCJpZCI6MX0.CB7Z7gm06MRsmCSFJ49Aat27sUsTqb_cYNipI-v_TRRepi11XeA1MyqPVZ8ffAahNEkomgQ3w3ENJeY7PgiGyA`
 				}
 			})
-
-			console.log('dsfdsf')
 
 			if (!response.ok) {
 				setError('dbType', { message: 'ошибка подключения к бд' })
 				return
 			}
 
-			const serverData: { id: string } = await response.json()
+			const serverData: { id: string } | { error: string } =
+				await response.json()
+
+			if ('error' in serverData) {
+				setError('dbType', { message: serverData.error })
+				return
+			}
+
+			console.log(serverData)
 		} catch (error) {
 			console.error(error)
 			setError('dbType', { message: 'что-то пошло не так...' })

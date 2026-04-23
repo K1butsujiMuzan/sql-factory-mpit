@@ -7,10 +7,7 @@ interface Props {
 
 const Logo = ({ dbId }: Props) => {
 	return (
-		<Link
-			href={dbId ? PAGES.CHAT(dbId) : PAGES.MAIN}
-			className={'text-gray-light'}
-		>
+		<Link href={dbId ? PAGES.CHAT(dbId) : PAGES.MAIN} className={''}>
 			SQLFactory
 		</Link>
 	)
