@@ -49,8 +49,7 @@ const ChatForm = ({ dbId }: Props) => {
 				method: 'POST',
 				body: formData,
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVzIjoxNzgwNTQ1NDEyLCJpZCI6MX0.N9UPxyoC48wYuuBN3HC4oXhPMYVlkI_d-b792ZXCJC11J2BWwIdZ_4jsTFDAfMX85QS-CCroU_RubEL73MFQlA`
+					'Content-Type': 'application/x-www-form-urlencoded'
 				}
 			})
 
