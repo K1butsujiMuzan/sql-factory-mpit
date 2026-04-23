@@ -11,7 +11,15 @@ export default async function ChatLayout({ children, params }: Props) {
 	return (
 		<>
 			<Aside dbId={dbId} />
-			<main className={'p-5'}>{children}</main>
+			<main className={'bg-white p-1.5'}>
+				<div
+					className={
+						'bg-white h-full w-full flex items-center justify-center rounded-3xl border border-gray-100'
+					}
+				>
+					{children}
+				</div>
+			</main>
 		</>
 	)
 }

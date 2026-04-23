@@ -10,7 +10,7 @@ const RequestSection = ({ text, children, className }: Props) => {
 	return (
 		<section
 			className={cn(
-				'flex flex-col gap-10 max-w-150 w-full items-center text-center',
+				'text-white flex flex-col gap-10 max-w-71.5 w-full items-center text-center',
 				className
 			)}
 		>

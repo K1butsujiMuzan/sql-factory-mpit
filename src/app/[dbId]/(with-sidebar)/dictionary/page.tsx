@@ -6,16 +6,14 @@ export const metadata: Metadata = {
 
 const DictionaryPage = () => {
 	return (
-    <section>
-      <div>
-        <span>Слово</span>
-        <span>Значение</span>
-      </div>
-      <ul>
-
-      </ul>
-    </section>
-  )
+		<section>
+			<div>
+				<span>Слово</span>
+				<span>Значение</span>
+			</div>
+			<ul></ul>
+		</section>
+	)
 }
 
 export default DictionaryPage

@@ -2,7 +2,7 @@ import type { TSelect } from '@/shared/types/select.type'
 
 export const DATABASES = {
 	MYSQL: 'mysql',
-	POSTGRESQL: 'postgresql'
+	POSTGRESQL: 'postgres'
 } as const
 
 export const linkFormData: TSelect[] = [

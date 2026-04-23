@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation'
 import { PAGES } from '@/configs/pages.config'
 import Select from '@/components/Select/Select'
 import { linkFormData } from '@/components/LinkForm/link-form.data'
+import { API } from '@/configs/api.config'
+import Logo from '@/components/Logo/Logo'
 
 const LinkForm = () => {
 	const router = useRouter()
@@ -16,6 +18,7 @@ const LinkForm = () => {
 	const {
 		control,
 		handleSubmit,
+		setError,
 		formState: { errors, isSubmitting, isValid }
 	} = useForm<TDbLink>({
 		resolver: zodResolver(dbLinkSchema),
@@ -25,17 +28,47 @@ const LinkForm = () => {
 			user: '',
 			password: '',
 			dbName: '',
-			dbType: 'postgresql'
+			dbType: 'postgres'
 		},
 		mode: 'onSubmit',
 		reValidateMode: 'onSubmit'
 	})
 
-	const onFormSubmit: SubmitHandler<TDbLink> = (data) => {
+	const onFormSubmit: SubmitHandler<TDbLink> = async (data) => {
 		if (!isValid) {
 			return
 		}
-		router.push(PAGES.CHAT('bla-bla-bla'))
+
+		const formData = new FormData()
+
+		formData.append('host', data.host)
+		formData.append('port', data.port.toString())
+		formData.append('user', data.user)
+		formData.append('password', data.password)
+		formData.append('database', data.dbName)
+		formData.append('db_type', data.dbType)
+
+		try {
+			const response = await fetch(API.GET_DB_ID, {
+				method: 'POST',
+				body: formData,
+				headers: {
+					authorization: `Bearer ${process.env.TEST_BEARER}`
+				}
+			})
+
+			console.log('dsfdsf')
+
+			if (!response.ok) {
+				setError('dbType', { message: 'ошибка подключения к бд' })
+				return
+			}
+
+			const serverData: { id: string } = await response.json()
+		} catch (error) {
+			console.error(error)
+			setError('dbType', { message: 'что-то пошло не так...' })
+		}
 	}
 
 	return (
@@ -164,7 +197,7 @@ const LinkForm = () => {
 			<button
 				type={'submit'}
 				className={
-					'pt-1.5 pb-2 bg-accent text-dark-menu rounded-20 max-w-71.5 w-full'
+					'pt-1.5 pb-2 bg-accent text-white rounded-20 max-w-71.5 w-full'
 				}
 			>
 				Войти

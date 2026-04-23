@@ -109,14 +109,11 @@ const Aside = ({ dbId }: Props) => {
 				onTransitionEnd={handleTransitionEnd}
 				onTransitionStart={handleTransitionStart}
 				inert={!isOpen}
-				className={cn(
-					'w-42 bg-dark-menu rounded-tr-20 rounded-br-20 py-5 text-gray-light transition duration-300',
-					{
-						'opacity-100 translate-x-0 pointer-events-auto': isOpen,
-						'opacity-0 -translate-x-full pointer-events-none': !isOpen,
-						hidden: isHidden
-					}
-				)}
+				className={cn('w-42 bg-white py-5  transition duration-300', {
+					'opacity-100 translate-x-0 pointer-events-auto': isOpen,
+					'opacity-0 -translate-x-full pointer-events-none': !isOpen,
+					hidden: isHidden
+				})}
 			>
 				<div className={'flex items-center justify-between pr-3 pl-5 pb-11.5'}>
 					<Logo dbId={dbId} />

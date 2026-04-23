@@ -25,7 +25,7 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={`${publicSans.variable} h-full antialiased`}>
 			<body className="min-h-full flex flex-col font-public-sans">
-				<div id="root" className={'bg-dark text-white'}>
+				<div id="root" className={'bg-white text-dark-menu'}>
 					{children}
 				</div>
 			</body>

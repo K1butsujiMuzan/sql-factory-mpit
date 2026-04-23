@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
 	return (
-		<main>
+		<main className={'flex justify-center items-center'}>
 			<RequestSection text={'SQLFactory'}>
 				<LinkForm />
 			</RequestSection>
