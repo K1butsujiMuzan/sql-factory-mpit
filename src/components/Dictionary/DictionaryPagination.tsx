@@ -121,7 +121,7 @@ const DictionaryPagination = ({
 							className={cn(
 								'w-7 h-7 rounded-[6px] text-sm transition border',
 								p === safePage
-									? 'bg-accent-100 text-dark-menu border-transparent'
+									? 'bg-accent-light text-dark-menu border-transparent'
 									: 'bg-white text-gray-main hover:bg-gray-100 border-gray-light'
 							)}
 							aria-current={p === safePage ? 'page' : undefined}

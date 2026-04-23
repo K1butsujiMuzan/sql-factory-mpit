@@ -18,7 +18,7 @@ const DictionaryRowActions = ({ onEdit, onDelete, className }: Props) => {
 				type="button"
 				onClick={onEdit}
 				aria-label="Редактировать"
-				className="w-8 h-8 rounded-full border border-accent-100 flex items-center justify-center"
+				className="w-8 h-8 rounded-full border border-accent-light flex items-center justify-center"
 			>
 				<svg
 					width="14"
