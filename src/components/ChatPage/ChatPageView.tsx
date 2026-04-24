@@ -15,7 +15,12 @@ export default function ChatPageView({ history }: Props) {
 	return (
 		<div className="w-full h-full max-h-full p-5 flex flex-col gap-5 max-w-370">
 			<div className="w-full flex items-center justify-end">
-				<SaveReportButton />
+				<SaveReportButton
+					chartType={history.chart_type}
+					title={history.title}
+					header={header}
+					data={data}
+				/>
 			</div>
 			<div className="w-full h-full min-h-0 grid grid-cols-[2fr_1fr] gap-5">
 				<section className="grid min-h-0 grid-rows-[2fr_1fr] gap-5">

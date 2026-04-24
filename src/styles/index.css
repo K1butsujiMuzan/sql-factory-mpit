@@ -20,17 +20,19 @@
 	--font-inter: var(--font-inter);
 }
 
-@keyframes chartFadeIn {
-	from {
+.chart-fade-in {
+	animation: fadeSlideUp 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+	opacity: 0;
+	transform: translateY(12px);
+}
+
+@keyframes fadeSlideUp {
+	0% {
 		opacity: 0;
 		transform: translateY(12px);
 	}
-	to {
+	100% {
 		opacity: 1;
 		transform: translateY(0);
 	}
-}
-
-.chart-fade-in {
-	animation: chartFadeIn 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }

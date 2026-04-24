@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { forwardRef, useImperativeHandle, useRef } from 'react'
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -12,11 +12,12 @@ import {
 	Title,
 	Tooltip,
 	Legend,
-	Filler
+	Filler,
+	type ChartOptions,
+	type TooltipItem
 } from 'chart.js'
 import { Line, Pie, Bar } from 'react-chartjs-2'
 import type { TChartType } from '@/constants/chart-types'
-import type { TooltipItem } from 'chart.js'
 
 ChartJS.register(
 	CategoryScale,
@@ -37,10 +38,12 @@ interface ChartRendererProps {
 	data: string[][]
 }
 
-const truncate = (str: string, maxLen = 10) => {
-	if (str.length <= maxLen) return str
-	return str.slice(0, maxLen) + '...'
+export type ChartRendererRef = {
+	getImage: () => string | null
 }
+
+const truncate = (str: string, maxLen = 10) =>
+	str.length <= maxLen ? str : str.slice(0, maxLen) + '...'
 
 const transformForAxisChart = (
 	header: string[],
@@ -49,182 +52,141 @@ const transformForAxisChart = (
 ) => {
 	const labels = rows.map((row) => truncate(row[0]))
 	const numericHeaders = header.slice(1)
-	const datasets = numericHeaders.map((headerName, idx) => {
-		const columnData = rows.map((row) => {
-			const rawValue = row[idx + 1]
-			const numericValue = parseFloat(rawValue)
-			return isNaN(numericValue) ? 0 : numericValue
-		})
-		const colors = [
-			'#3b82f6',
-			'#ef4444',
-			'#10b981',
-			'#f59e0b',
-			'#8b5cf6',
-			'#ec489a'
-		]
-		const color = colors[idx % colors.length]
-		return {
-			label: headerName,
-			data: columnData,
-			borderColor: color,
-			backgroundColor: isBar ? `${color}20` : 'transparent',
-			borderWidth: 2.5,
-			tension: 0.4,
-			pointRadius: 4,
-			pointHoverRadius: 6,
-			pointBackgroundColor: color,
-			pointBorderColor: '#fff',
-			pointBorderWidth: 2,
-			fill: false
-		}
-	})
-	return { labels, datasets }
-}
 
-const transformForPieChart = (_header: string[], rows: string[][]) => {
-	const labels = rows.map((row) => truncate(row[0]))
-	const pieData = rows.map((row) => {
-		const value = parseFloat(row[1])
-		return isNaN(value) ? 0 : value
-	})
+	const colors = [
+		'#3b82f6',
+		'#ef4444',
+		'#10b981',
+		'#f59e0b',
+		'#8b5cf6',
+		'#ec489a'
+	]
+
 	return {
 		labels,
-		datasets: [
-			{
-				data: pieData,
-				backgroundColor: [
-					'#3b82f6',
-					'#ef4444',
-					'#10b981',
-					'#f59e0b',
-					'#8b5cf6',
-					'#ec489a',
-					'#06b6d4',
-					'#84cc16',
-					'#f97316',
-					'#6366f1'
-				],
-				borderWidth: 0,
-				hoverOffset: 15
-			}
-		]
+		datasets: numericHeaders.map((name, idx) => ({
+			label: name,
+			data: rows.map((r) => {
+				const v = parseFloat(r[idx + 1])
+				return isNaN(v) ? 0 : v
+			}),
+			borderColor: colors[idx % colors.length],
+			backgroundColor: isBar
+				? `${colors[idx % colors.length]}20`
+				: 'transparent',
+			borderWidth: 2,
+			tension: 0.4
+		}))
 	}
 }
 
-export default function ChartRenderer({
-	chartType,
-	header,
-	data
-}: ChartRendererProps) {
-	const commonOptions = {
-		responsive: true,
-		maintainAspectRatio: false,
-		animation: { duration: 800, easing: 'easeOutQuart' as const },
-		layout: { padding: { top: 10, bottom: 10, left: 10, right: 10 } },
-		scales: {
-			y: {
-				grid: { color: '#e5e7eb', drawBorder: true },
-				ticks: { color: '#4b5563', font: { size: 11 } }
-			},
-			x: {
-				grid: { display: false },
-				ticks: {
-					color: '#4b5563',
-					font: { size: 11 },
-					rotation: 0,
-					autoSkip: true
-				}
-			}
-		},
-		plugins: {
-			legend: {
-				position: 'top' as const,
-				labels: {
-					font: { size: 12, weight: 'bold' as const },
-					color: '#374151',
-					usePointStyle: true,
-					boxWidth: 10
-				}
-			},
-			tooltip: {
-				backgroundColor: '#ffffff',
-				titleColor: '#111827',
-				bodyColor: '#4b5563',
-				borderColor: '#e5e7eb',
-				borderWidth: 1,
-				padding: 10,
-				cornerRadius: 8,
-				bodyFont: { size: 12 },
-				titleFont: { size: 13, weight: 'bold' as const }
-			}
+const transformForPieChart = (rows: string[][]) => ({
+	labels: rows.map((r) => truncate(r[0])),
+	datasets: [
+		{
+			data: rows.map((r) => {
+				const v = parseFloat(r[1])
+				return isNaN(v) ? 0 : v
+			}),
+			backgroundColor: [
+				'#3b82f6',
+				'#ef4444',
+				'#10b981',
+				'#f59e0b',
+				'#8b5cf6',
+				'#ec489a'
+			]
 		}
-	}
+	]
+})
 
-	const pieOptions = {
-		...commonOptions,
-		scales: undefined,
-		plugins: {
-			...commonOptions.plugins,
-			tooltip: {
-				...commonOptions.plugins.tooltip,
-				callbacks: {
-					label: (context: TooltipItem<'pie'>) =>
-						`${context.label}: ${context.raw}`
-				}
-			}
-		}
-	}
-
-	const wrapperClass =
-		'w-full h-full relative bg-white rounded-xl border border-gray-200 p-2 shadow-sm chart-fade-in'
-	const placeholderClass =
-		'w-full h-full flex items-center justify-center bg-white rounded-xl border border-gray-200 chart-fade-in'
-
-	if (chartType === 'none') {
-		return (
-			<div className={placeholderClass}>
-				<p className="text-gray-500 text-lg">График отсутствует</p>
-			</div>
-		)
-	}
-
-	if (!data?.length || !header?.length) {
-		return (
-			<div className={placeholderClass}>
-				<p className="text-gray-500 text-center px-1">
-					Недостаточно данных, чтобы построить график
-				</p>
-			</div>
-		)
-	}
-
-	if (chartType === 'line') {
-		return (
-			<div className={wrapperClass}>
-				<Line
-					data={transformForAxisChart(header, data, false)}
-					options={commonOptions}
-				/>
-			</div>
-		)
-	}
-	if (chartType === 'pie') {
-		return (
-			<div className={wrapperClass}>
-				<Pie data={transformForPieChart(header, data)} options={pieOptions} />
-			</div>
-		)
-	}
-	if (chartType === 'histogram') {
-		return (
-			<div className={wrapperClass}>
-				<Bar
-					data={transformForAxisChart(header, data, true)}
-					options={commonOptions}
-				/>
-			</div>
-		)
-	}
-	return null
+interface ChartWithImage {
+	toBase64Image?: () => string
 }
+
+const ChartRenderer = forwardRef<ChartRendererRef, ChartRendererProps>(
+	({ chartType, header, data }, ref) => {
+		const chartRef = useRef<ChartWithImage | null>(null)
+
+		useImperativeHandle(ref, () => ({
+			getImage: () => {
+				return chartRef.current?.toBase64Image?.() || null
+			}
+		}))
+
+		const lineOptions: ChartOptions<'line'> = {
+			responsive: true,
+			animation: false,
+			scales: {
+				y: { grid: { color: '#e5e7eb' } }
+			}
+		}
+
+		const barOptions: ChartOptions<'bar'> = {
+			responsive: true,
+			animation: false,
+			scales: {
+				y: { grid: { color: '#e5e7eb' } }
+			}
+		}
+
+		const pieOptions: ChartOptions<'pie'> = {
+			responsive: true,
+			animation: false,
+			plugins: {
+				legend: { position: 'top' },
+				tooltip: {
+					callbacks: {
+						label: (ctx: TooltipItem<'pie'>) => `${ctx.label}: ${ctx.raw}`
+					}
+				}
+			}
+		}
+
+		if (!data?.length || !header?.length) return <div>Нет данных</div>
+
+		const setChartRef = (instance: unknown) => {
+			if (
+				instance &&
+				typeof instance === 'object' &&
+				'toBase64Image' in instance
+			) {
+				chartRef.current = instance as ChartWithImage
+			} else {
+				chartRef.current = null
+			}
+		}
+
+		return (
+			<div className="w-full h-full">
+				{chartType === 'line' && (
+					<Line
+						ref={setChartRef}
+						data={transformForAxisChart(header, data, false)}
+						options={lineOptions}
+					/>
+				)}
+
+				{chartType === 'histogram' && (
+					<Bar
+						ref={setChartRef}
+						data={transformForAxisChart(header, data, true)}
+						options={barOptions}
+					/>
+				)}
+
+				{chartType === 'pie' && (
+					<Pie
+						ref={setChartRef}
+						data={transformForPieChart(data)}
+						options={pieOptions}
+					/>
+				)}
+			</div>
+		)
+	}
+)
+
+ChartRenderer.displayName = 'ChartRenderer'
+
+export default ChartRenderer
