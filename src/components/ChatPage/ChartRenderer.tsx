@@ -18,6 +18,7 @@ import {
 } from 'chart.js'
 import { Line, Pie, Bar } from 'react-chartjs-2'
 import type { TChartType } from '@/constants/chart-types'
+import { formatIsoUtcDate } from '@/lib/format-iso-date'
 
 ChartJS.register(
 	CategoryScale,
@@ -50,7 +51,7 @@ const transformForAxisChart = (
 	rows: string[][],
 	isBar: boolean
 ) => {
-	const labels = rows.map((row) => truncate(row[0]))
+	const labels = rows.map((row) => truncate(formatIsoUtcDate(row[0])))
 	const numericHeaders = header.slice(1)
 
 	const colors = [
@@ -81,7 +82,7 @@ const transformForAxisChart = (
 }
 
 const transformForPieChart = (rows: string[][]) => ({
-	labels: rows.map((r) => truncate(r[0])),
+	labels: rows.map((r) => truncate(formatIsoUtcDate(r[0]))),
 	datasets: [
 		{
 			data: rows.map((r) => {

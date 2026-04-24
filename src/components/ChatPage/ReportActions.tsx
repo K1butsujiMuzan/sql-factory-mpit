@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import type { ChartRendererRef } from '@/components/ChatPage/ChartRenderer'
 import type { TChartType } from '@/constants/chart-types'
+import { formatIsoUtcDate } from '@/lib/format-iso-date'
 
 interface Props {
 	header: string[]
@@ -41,7 +42,10 @@ export default function ReportActions({
 	}, [])
 
 	const downloadExcel = useCallback(() => {
-		const worksheetData = [header, ...data]
+		const worksheetData = [
+			header.map(formatIsoUtcDate),
+			...data.map((row) => row.map(formatIsoUtcDate))
+		]
 		const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
 		const workbook = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Данные')

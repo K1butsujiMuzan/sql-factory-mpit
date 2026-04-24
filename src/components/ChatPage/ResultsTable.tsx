@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { formatIsoUtcDate } from '@/lib/format-iso-date'
 
 interface Props {
 	header: string[]
@@ -9,6 +10,8 @@ interface Props {
 
 export default function ResultsTable({ header, data }: Props) {
 	const [isFullscreen, setIsFullscreen] = useState(false)
+
+	const renderCell = (value: string) => formatIsoUtcDate(value)
 
 	useEffect(() => {
 		if (!isFullscreen) return
@@ -88,7 +91,7 @@ export default function ResultsTable({ header, data }: Props) {
 											key={`${rowIdx}-${cellIdx}`}
 											className="px-4 py-3 border-b border-[#ECECEC] whitespace-nowrap"
 										>
-											{cell}
+											{renderCell(cell)}
 										</td>
 									))}
 								</tr>
@@ -170,7 +173,7 @@ export default function ResultsTable({ header, data }: Props) {
 													key={`${rowIdx}-${cellIdx}`}
 													className="px-4 py-3 border-b border-[#ECECEC] whitespace-nowrap"
 												>
-													{cell}
+													{renderCell(cell)}
 												</td>
 											))}
 										</tr>

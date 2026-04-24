@@ -1,3 +1,5 @@
+import { formatIsoUtcDatesInText } from '@/lib/format-iso-date'
+
 interface Props {
 	reasoning: string[]
 }
@@ -10,7 +12,7 @@ const Thinking = ({ reasoning }: Props) => {
 			}
 		>
 			{reasoning.map((item, index) => (
-				<li key={`item-${index}`}>{item}</li>
+				<li key={`item-${index}`}>{formatIsoUtcDatesInText(item)}</li>
 			))}
 		</ul>
 	)

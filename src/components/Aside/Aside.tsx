@@ -16,6 +16,7 @@ import { QUERY_KEYS } from '@/configs/query-keys.config'
 import { API } from '@/configs/api.config'
 import type { TAsideHistory } from '@/shared/types/aside-history.type'
 import type { TAsideTemplate } from '@/shared/types/aside-templates.type'
+import { formatIsoUtcDatesInText } from '@/lib/format-iso-date'
 
 interface Props {
 	dbId: string
@@ -189,7 +190,7 @@ const Aside = ({ dbId }: Props) => {
 									isActive={pathname === PAGES.CHAT(dbId, id.toString())}
 									key={id}
 									href={PAGES.CHAT(dbId, id.toString())}
-									label={title}
+									label={formatIsoUtcDatesInText(title)}
 								/>
 							))}
 						{listType === 'templates' && (
@@ -204,7 +205,7 @@ const Aside = ({ dbId }: Props) => {
 											}
 											key={id}
 											href={PAGES.TEMPLATE(dbId, id.toString())}
-											label={title}
+											label={formatIsoUtcDatesInText(title)}
 										/>
 									))}
 							</>
