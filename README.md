@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SQLFactory
 
-## Getting Started
+Данный README содержит руководство для запуска фронтенда проекта SQLFactory.
+Для настройки бэкенда используйте официальный репозиторий.
 
-First, run the development server:
+---
+
+## Содержание
+
+1. [Требования](#требования)
+2. [Клонирование репозиториев](#клонирование-репозиториев)
+3. [Запуск фронтенда](#запуск-фронтенда)
+4. [Подключение к бэкенду](#подключение-к-бэкенду)
+5. [Проверка работоспособности](#проверка-работоспособности)
+
+---
+
+## Требования
+
+Перед началом убедитесь, что у вас установлены:
+
+* Git
+* Bun
+
+Установка Bun:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+curl -fsSL https://bun.sh/install | bash
+```
+
+или:
+
+```bash
+npm install -g bun
+```
+
+---
+
+## Клонирование репозиториев
+
+```bash
+git clone https://github.com/K1butsujiMuzan/sql-factory-mpit.git
+cd sql-factory-mpit
+```
+
+---
+
+## Запуск фронтенда
+
+Установите зависимости:
+
+```bash
+bun i
+```
+
+Создайте файл `.env` в корне проекта и добавьте:
+
+```
+BASE_URL=http://localhost:8080/api
+```
+
+Запустите dev-сервер:
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+После запуска фронтенд будет доступен по адресу (обычно):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Подключение к бэкенду
 
-To learn more about Next.js, take a look at the following resources:
+Для запуска и настройки бэкенда следуйте инструкции из репозитория: https://github.com/Kuzmin-Aleksey/SQLFactory
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+После запуска убедитесь, что бэкенд доступен по адресу:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+http://localhost:8080
+```
 
-## Deploy on Vercel
+Если используется другой порт — обновите `BASE_URL` в `.env`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
