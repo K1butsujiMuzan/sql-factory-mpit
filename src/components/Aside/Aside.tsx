@@ -58,7 +58,7 @@ const Aside = ({ dbId }: Props) => {
 				return []
 			}
 		},
-		queryKey: [QUERY_KEYS.ASIDE_HISTORY]
+		queryKey: [QUERY_KEYS.ASIDE_HISTORY, dbId]
 	})
 
 	const templateQuery = useQuery({
@@ -81,7 +81,7 @@ const Aside = ({ dbId }: Props) => {
 				return []
 			}
 		},
-		queryKey: [QUERY_KEYS.ASIDE_TEMPLATES]
+		queryKey: [QUERY_KEYS.ASIDE_TEMPLATES, dbId]
 	})
 
 	const [isOpen, setIsOpen] = useState<boolean>(true)
@@ -187,7 +187,11 @@ const Aside = ({ dbId }: Props) => {
 									isActive={pathname === PAGES.CHAT(dbId, id.toString())}
 									key={id}
 									href={PAGES.CHAT(dbId, id.toString())}
-									label={formatIsoUtcDatesInText(title)}
+									label={
+										typeof title === 'string'
+											? formatIsoUtcDatesInText(title)
+											: String(title)
+									}
 								/>
 							))}
 						{listType === 'templates' && (
@@ -202,7 +206,11 @@ const Aside = ({ dbId }: Props) => {
 											}
 											key={id}
 											href={PAGES.TEMPLATE(dbId, id.toString())}
-											label={formatIsoUtcDatesInText(title)}
+											label={
+												typeof title === 'string'
+													? formatIsoUtcDatesInText(title)
+													: String(title)
+											}
 										/>
 									))}
 							</>

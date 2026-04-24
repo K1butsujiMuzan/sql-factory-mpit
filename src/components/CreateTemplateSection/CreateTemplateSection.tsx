@@ -68,7 +68,7 @@ const CreateTemplateSection = ({ dbId }: Props) => {
 			}
 
 			await queryClient.invalidateQueries({
-				queryKey: [QUERY_KEYS.ASIDE_TEMPLATES]
+				queryKey: [QUERY_KEYS.ASIDE_TEMPLATES, dbId]
 			})
 			router.push(PAGES.TEMPLATE(dbId, data.id.toString()))
 		} catch (error) {
