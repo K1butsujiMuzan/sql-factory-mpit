@@ -1,12 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import Logo from '@/components/Logo/Logo'
 import AsideLink from '@/components/Aside/AsideLink'
 import { PAGES } from '@/configs/pages.config'
 import AsideButton from '@/components/Aside/AsideButton'
-import type { TAsideLink } from '@/shared/types/aside-link.type'
 import { usePathname } from 'next/navigation'
 import AsideMiniLink from '@/components/Aside/AsideMiniLink'
 import CreateTemplateLink from '@/components/Aside/CreateTemplateLink'
@@ -22,21 +21,6 @@ interface Props {
 	dbId: string
 }
 
-const fakeTemplates: TAsideLink[] = [
-	{
-		id: '123123123',
-		name: 'Название шаблона'
-	},
-	{
-		id: 'dkfjgdasdasdkdflgj',
-		name: 'Какой-asdasdas текст'
-	},
-	{
-		id: 'asdasdasd',
-		name: 'бла блasdasdа бла'
-	}
-]
-
 const Aside = ({ dbId }: Props) => {
 	const historyQuery = useQuery({
 		queryFn: async () => {
@@ -47,11 +31,7 @@ const Aside = ({ dbId }: Props) => {
 						'Content-Type': 'application/x-www-form-urlencoded'
 					}
 				})
-
-				if (!response.ok) {
-					return []
-				}
-
+				if (!response.ok) return []
 				return (await response.json()) as TAsideHistory[]
 			} catch (error) {
 				console.error(error)
@@ -70,11 +50,7 @@ const Aside = ({ dbId }: Props) => {
 						'Content-Type': 'application/x-www-form-urlencoded'
 					}
 				})
-
-				if (!response.ok) {
-					return []
-				}
-
+				if (!response.ok) return []
 				return (await response.json()) as TAsideTemplate[]
 			} catch (error) {
 				console.error(error)
@@ -85,104 +61,82 @@ const Aside = ({ dbId }: Props) => {
 	})
 
 	const [isOpen, setIsOpen] = useState<boolean>(true)
-	const [isHidden, setIsHidden] = useState<boolean>(false)
-	const [listType, setListType] = useState<'none' | 'history' | 'templates'>(
-		'history'
-	)
-	const isTransitioning = useRef(false)
-
+	const [isShown, setIsShown] = useState<boolean>(false)
+	const [listType, setListType] = useState<'history' | 'templates'>('history')
 	const pathname = usePathname()
 
 	const onToggleIsOpen = () => {
-		if (isTransitioning.current) {
-			return
-		}
-		const newState = !isOpen
-		if (!newState) {
+		if (isOpen) {
+			setIsShown(false)
 			setIsOpen(false)
-			setIsHidden(false)
 		} else {
-			setIsHidden(false)
-			requestAnimationFrame(() => {
-				setIsOpen(true)
-			})
+			setIsOpen(true)
+			setIsShown(false)
 		}
 	}
 
-	const handleTransitionEnd = () => {
-		isTransitioning.current = false
-		if (!isOpen) {
-			setIsHidden(true)
+	const handleTransitionEnd = (e: React.TransitionEvent<HTMLElement>) => {
+		if (e.propertyName === 'width' && !isOpen) {
+			setIsShown(true)
 		}
-	}
-
-	const handleTransitionStart = () => {
-		isTransitioning.current = true
-	}
-
-	const onMenuButtonClick = (type: 'history' | 'templates') => {
-		setListType(type)
 	}
 
 	return (
 		<>
-			<AsideToggleButton
-				disabled={isOpen}
-				onClick={onToggleIsOpen}
-				isOpen={isOpen}
-				className={
-					'px-3 rounded-20 border border-gray-100 absolute top-5 left-5 transition duration-300'
-				}
-			/>
+			{isShown && (
+				<AsideToggleButton
+					onClick={onToggleIsOpen}
+					className="px-3 rounded-20 border border-gray-100 absolute top-5 left-5 transition duration-300 z-10"
+				/>
+			)}
 			<aside
-				onTransitionEnd={handleTransitionEnd}
-				onTransitionStart={handleTransitionStart}
 				inert={!isOpen}
-				className={cn('w-54 bg-white py-5  transition duration-300', {
-					'opacity-100 translate-x-0 pointer-events-auto': isOpen,
-					'opacity-0 -translate-x-full pointer-events-none': !isOpen,
-					hidden: isHidden
-				})}
+				onTransitionEnd={handleTransitionEnd}
+				className={cn(
+					'bg-white py-5 transition-all duration-300 overflow-hidden',
+					isOpen ? 'w-54' : 'w-0'
+				)}
 			>
-				<div className={'flex items-center justify-between pr-5.5 pl-3 pb-10'}>
-					<Logo dbId={dbId} />
-					<AsideToggleButton onClick={onToggleIsOpen} isOpen={isOpen} />
-				</div>
-				<ul
-					className={
-						'flex flex-col gap-2.5 pb-5 pr-5.5 pl-3 border-b border-gray-100'
-					}
-				>
-					{pathname === PAGES.CHAT(dbId) ? (
-						<AsideLink label={'Сменить базу'} href={PAGES.MAIN} />
-					) : (
-						<AsideLink label={'Новый чат'} href={PAGES.CHAT(dbId)} />
-					)}
-					<AsideButton
-						isActive={
-							pathname.startsWith(PAGES.CHAT(dbId)) &&
-							pathname !== PAGES.CHAT(dbId)
-						}
-						onClick={() => onMenuButtonClick('history')}
-						label={'История'}
-					/>
-					<AsideButton
-						isActive={pathname.startsWith(PAGES.TEMPLATE(dbId))}
-						onClick={() => onMenuButtonClick('templates')}
-						label={'Шаблоны'}
-					/>
-					<AsideLink
-						isActive={pathname === PAGES.DICTIONARY(dbId)}
-						label={'Словарь'}
-						href={PAGES.DICTIONARY(dbId)}
-					/>
-				</ul>
-				{listType !== 'none' && (
-					<ul className={'flex flex-col gap-5 pt-5 pl-2 pr-3'}>
+				<div className="w-54 pl-3 pr-3">
+					<div className="flex items-center justify-between pr-5.5 pb-10">
+						<Logo dbId={dbId} />
+						<AsideToggleButton className="p-1.5" onClick={onToggleIsOpen} />
+					</div>
+					<ul className="flex flex-col gap-2.5 pb-5 pr-5.5 border-b border-gray-100">
+						{pathname === PAGES.CHAT(dbId) ? (
+							<AsideLink label="Сменить базу" href={PAGES.MAIN} />
+						) : (
+							<AsideLink label="Новый чат" href={PAGES.CHAT(dbId)} />
+						)}
+						<AsideButton
+							isActive={
+								pathname.startsWith(PAGES.CHAT(dbId)) &&
+								pathname !== PAGES.CHAT(dbId)
+							}
+							onClick={() => setListType('history')}
+							label="История"
+						/>
+						<AsideButton
+							isActive={pathname.startsWith(PAGES.TEMPLATE(dbId))}
+							onClick={() => setListType('templates')}
+							label="Шаблоны"
+						/>
+						<AsideLink
+							isActive={pathname === PAGES.DICTIONARY(dbId)}
+							label="Словарь"
+							href={PAGES.DICTIONARY(dbId)}
+						/>
+					</ul>
+					<ul className="flex flex-col gap-5 pt-5 pl-2 pr-3">
+						{(historyQuery.isPending || templateQuery.isPending) &&
+							[...Array(3)].map((_, index) => (
+								<li
+									key={index}
+									className="block h-5 py-1 px-3 bg-gray-150 rounded-sm bg-gradient-to-r from-gray-150 via-gray-100 to-gray-150 bg-[length:200%_100%] animate-shimmer"
+								/>
+							))}
 						{listType === 'history' &&
-							historyQuery.data &&
-							historyQuery.data.length > 0 &&
-							historyQuery.data.map(({ id, title }) => (
+							historyQuery.data?.map(({ id, title }) => (
 								<AsideMiniLink
 									isActive={pathname === PAGES.CHAT(dbId, id.toString())}
 									key={id}
@@ -193,22 +147,18 @@ const Aside = ({ dbId }: Props) => {
 						{listType === 'templates' && (
 							<>
 								<CreateTemplateLink dbId={dbId} />
-								{templateQuery.data &&
-									templateQuery.data.length > 0 &&
-									templateQuery.data.map(({ id, title }) => (
-										<AsideMiniLink
-											isActive={
-												pathname === PAGES.TEMPLATE(dbId, id.toString())
-											}
-											key={id}
-											href={PAGES.TEMPLATE(dbId, id.toString())}
-											label={formatIsoUtcDatesInText(title)}
-										/>
-									))}
+								{templateQuery.data?.map(({ id, title }) => (
+									<AsideMiniLink
+										isActive={pathname === PAGES.TEMPLATE(dbId, id.toString())}
+										key={id}
+										href={PAGES.TEMPLATE(dbId, id.toString())}
+										label={formatIsoUtcDatesInText(title)}
+									/>
+								))}
 							</>
 						)}
 					</ul>
-				)}
+				</div>
 			</aside>
 		</>
 	)

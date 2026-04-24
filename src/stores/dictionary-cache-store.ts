@@ -39,12 +39,13 @@ export const useDictionaryCacheStore = create<TDictionaryCacheState>()(
 	)
 )
 
-export const setDictionaryPageCache = (dbId: string, data: TDictionaryPageCache) =>
-	useDictionaryCacheStore.getState().setPageCache(dbId, data)
+export const setDictionaryPageCache = (
+	dbId: string,
+	data: TDictionaryPageCache
+) => useDictionaryCacheStore.getState().setPageCache(dbId, data)
 
 export const getDictionaryPageCache = (dbId: string) =>
 	useDictionaryCacheStore.getState().getPageCache(dbId)
 
 export const clearDictionaryPageCache = (dbId: string) =>
 	useDictionaryCacheStore.getState().clearPageCache(dbId)
-

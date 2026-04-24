@@ -93,7 +93,9 @@ export async function updateDictItem(payload: {
 	}
 }
 
-export async function deleteDictItem(id: number): Promise<null | { error: string }> {
+export async function deleteDictItem(
+	id: number
+): Promise<null | { error: string }> {
 	const response = await fetch(API.DELETE_DICT_ITEM(id), {
 		method: 'DELETE',
 		headers: {
@@ -111,4 +113,3 @@ export async function deleteDictItem(id: number): Promise<null | { error: string
 				: 'ошибка удаления'
 	}
 }
-

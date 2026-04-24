@@ -21,11 +21,16 @@ const linkFormSchema = z.object({
 	port: z
 		.string()
 		.min(1, { message: 'Порт обязателен' })
-		.refine((value) => /^\d+$/.test(value), { message: 'Порт должен быть числом' })
-		.refine((value) => {
-			const port = Number(value)
-			return Number.isInteger(port) && port >= 1 && port <= 65535
-		}, { message: 'Порт должен быть в диапазоне 1-65535' }),
+		.refine((value) => /^\d+$/.test(value), {
+			message: 'Порт должен быть числом'
+		})
+		.refine(
+			(value) => {
+				const port = Number(value)
+				return Number.isInteger(port) && port >= 1 && port <= 65535
+			},
+			{ message: 'Порт должен быть в диапазоне 1-65535' }
+		),
 	user: z.string().min(1, { message: 'Имя пользователя обязательно' }),
 	password: z.string().min(1, { message: 'Пароль обязателен' }),
 	dbName: z.string().min(1, { message: 'Имя базы данных обязательно' }),

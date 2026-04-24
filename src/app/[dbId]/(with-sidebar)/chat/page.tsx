@@ -16,7 +16,7 @@ const NewChatPage = async ({ params }: Props) => {
 	return (
 		<RequestSection
 			text={'Добрый день, что хотите узнать?'}
-			className={'max-w-121'}
+			className={'max-w-174.5'}
 		>
 			<ChatForm dbId={dbId} />
 		</RequestSection>

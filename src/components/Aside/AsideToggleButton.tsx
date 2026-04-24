@@ -2,20 +2,17 @@ import { cn } from '@/lib/cn'
 
 interface Props {
 	onClick: () => void
-	isOpen: boolean
 	className?: string
-	disabled?: boolean
 }
 
-const AsideToggleButton = ({ onClick, isOpen, className, disabled }: Props) => {
+const AsideToggleButton = ({ onClick, className }: Props) => {
 	return (
 		<button
-			disabled={disabled}
 			onClick={onClick}
-			className={cn('p-0.75 rounded-full text-dark-menu', className, {
-				'': isOpen,
-				'': !isOpen
-			})}
+			className={cn(
+				'p-0.75 rounded-full bg-transparent text-dark-menu hover:bg-gray-50 duration-300',
+				className
+			)}
 			type={'button'}
 		>
 			<svg

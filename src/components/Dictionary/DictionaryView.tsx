@@ -9,7 +9,12 @@ import Input from '@/components/Input/Input'
 import ErrorMessage from '@/components/ErrorMessage/ErrorMessage'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { QUERY_KEYS } from '@/configs/query-keys.config'
-import { addDictItem, deleteDictItem, getDict, updateDictItem } from '@/services/dict'
+import {
+	addDictItem,
+	deleteDictItem,
+	getDict,
+	updateDictItem
+} from '@/services/dict'
 import {
 	clearDictionaryPageCache,
 	setDictionaryPageCache,
@@ -37,12 +42,21 @@ function toDictionaryItems(data: unknown): DictionaryItem[] {
 		return data
 			.map((x) => {
 				if (typeof x !== 'object' || !x) return null
-				const item = x as Partial<{ id: unknown; word: unknown; meaning: unknown }>
+				const item = x as Partial<{
+					id: unknown
+					word: unknown
+					meaning: unknown
+				}>
 				const id = typeof item.id === 'number' ? item.id : Number(item.id)
 				const word = typeof item.word === 'string' ? item.word : ''
 				const meaning = typeof item.meaning === 'string' ? item.meaning : ''
 				if (!Number.isFinite(id) || !word || !meaning) return null
-				return { id, key: String(id), word, value: meaning } satisfies DictionaryItem
+				return {
+					id,
+					key: String(id),
+					word,
+					value: meaning
+				} satisfies DictionaryItem
 			})
 			.filter(Boolean) as DictionaryItem[]
 	}
@@ -113,7 +127,9 @@ const DictionaryView = ({ dbId }: Props) => {
 	)
 
 	const items = useMemo(() => dictQuery.data ?? [], [dictQuery.data])
-	const totalItems = dictQuery.data ? dictQuery.data.length : cached?.totalItems ?? 0
+	const totalItems = dictQuery.data
+		? dictQuery.data.length
+		: (cached?.totalItems ?? 0)
 	const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
 
 	const pageItems = useMemo(() => {
@@ -139,7 +155,9 @@ const DictionaryView = ({ dbId }: Props) => {
 			}
 
 			clearDictionaryPageCache(dbId)
-			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DICTIONARY, dbId] })
+			await queryClient.invalidateQueries({
+				queryKey: [QUERY_KEYS.DICTIONARY, dbId]
+			})
 			setWord('')
 			setValue('')
 			setPage(1)
@@ -157,7 +175,9 @@ const DictionaryView = ({ dbId }: Props) => {
 				return setError(res.error)
 			}
 			clearDictionaryPageCache(dbId)
-			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DICTIONARY, dbId] })
+			await queryClient.invalidateQueries({
+				queryKey: [QUERY_KEYS.DICTIONARY, dbId]
+			})
 		} catch (e) {
 			console.error(e)
 			setError('ошибка удаления')
@@ -191,7 +211,9 @@ const DictionaryView = ({ dbId }: Props) => {
 				return setError(res.error)
 			}
 			clearDictionaryPageCache(dbId)
-			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DICTIONARY, dbId] })
+			await queryClient.invalidateQueries({
+				queryKey: [QUERY_KEYS.DICTIONARY, dbId]
+			})
 			setEditingKey(null)
 			setEditingId(null)
 		} catch (e) {
@@ -255,7 +277,9 @@ const DictionaryView = ({ dbId }: Props) => {
 					</button>
 				</div>
 
-				{error.length > 0 && <ErrorMessage message={error} className="mt-2 p-0" />}
+				{error.length > 0 && (
+					<ErrorMessage message={error} className="mt-2 p-0" />
+				)}
 				{dictQuery.isError && (
 					<ErrorMessage
 						message={dictQuery.error?.message ?? 'ошибка загрузки'}

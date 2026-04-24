@@ -1,5 +1,4 @@
-const ISO_UTC_DATETIME_RE =
-	/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/
+const ISO_UTC_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/
 
 const ISO_UTC_DATETIME_GLOBAL_RE =
 	/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z/g
@@ -20,4 +19,3 @@ export function formatIsoUtcDate(value: string): string {
 export function formatIsoUtcDatesInText(value: string): string {
 	return value.replace(ISO_UTC_DATETIME_GLOBAL_RE, formatIsoUtcDate)
 }
-
