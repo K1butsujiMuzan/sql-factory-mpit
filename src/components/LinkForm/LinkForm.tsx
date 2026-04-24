@@ -4,6 +4,7 @@ import Input from '@/components/Input/Input'
 import { Controller, type SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { dbLinkSchema, type TDbLink } from '@/shared/schemes/db-link.schema'
+import { z } from 'zod'
 import ErrorMessage from '@/components/ErrorMessage/ErrorMessage'
 import { useRouter } from 'next/navigation'
 import { PAGES } from '@/configs/pages.config'
@@ -15,6 +16,24 @@ import Cookies from 'js-cookie'
 import { COOKIES } from '@/configs/cookies.config'
 import { ERRORS } from '@/configs/errors.config'
 
+const linkFormSchema = z.object({
+	host: z.string().min(1, { message: 'Хост обязателен' }),
+	port: z
+		.string()
+		.min(1, { message: 'Порт обязателен' })
+		.refine((value) => /^\d+$/.test(value), { message: 'Порт должен быть числом' })
+		.refine((value) => {
+			const port = Number(value)
+			return Number.isInteger(port) && port >= 1 && port <= 65535
+		}, { message: 'Порт должен быть в диапазоне 1-65535' }),
+	user: z.string().min(1, { message: 'Имя пользователя обязательно' }),
+	password: z.string().min(1, { message: 'Пароль обязателен' }),
+	dbName: z.string().min(1, { message: 'Имя базы данных обязательно' }),
+	dbType: z.enum(['postgres', 'mysql'])
+})
+
+type TLinkForm = z.infer<typeof linkFormSchema>
+
 const LinkForm = () => {
 	const router = useRouter()
 
@@ -23,11 +42,11 @@ const LinkForm = () => {
 		handleSubmit,
 		setError,
 		formState: { errors, isSubmitting }
-	} = useForm<TDbLink>({
-		resolver: zodResolver(dbLinkSchema),
+	} = useForm<TLinkForm>({
+		resolver: zodResolver(linkFormSchema),
 		defaultValues: {
 			host: '',
-			port: 1,
+			port: '',
 			user: '',
 			password: '',
 			dbName: '',
@@ -37,15 +56,28 @@ const LinkForm = () => {
 		reValidateMode: 'onSubmit'
 	})
 
-	const onFormSubmit: SubmitHandler<TDbLink> = async (data) => {
+	const onFormSubmit: SubmitHandler<TLinkForm> = async (data) => {
+		const parsed = dbLinkSchema.safeParse({
+			...data,
+			port: Number(data.port)
+		})
+		if (!parsed.success) {
+			const msg = parsed.error.flatten().fieldErrors.port?.[0]
+			if (msg) {
+				return setError('port', { message: msg })
+			}
+			return setError('dbType', { message: ERRORS.SOMETHING_WENT_WRONG })
+		}
+		const validData: TDbLink = parsed.data
+
 		const formData = new URLSearchParams()
 
-		formData.append('host', data.host)
-		formData.append('port', data.port.toString())
-		formData.append('user', data.user)
-		formData.append('password', data.password)
-		formData.append('database', data.dbName)
-		formData.append('db_type', data.dbType)
+		formData.append('host', validData.host)
+		formData.append('port', validData.port.toString())
+		formData.append('user', validData.user)
+		formData.append('password', validData.password)
+		formData.append('database', validData.dbName)
+		formData.append('db_type', validData.dbType)
 
 		try {
 			const response = await fetch(API.GET_DB_ID, {
@@ -67,7 +99,7 @@ const LinkForm = () => {
 				return setError('dbType', { message: serverData.error })
 			}
 
-			setDb(data)
+			setDb(validData)
 			Cookies.set(COOKIES.DB_ID, serverData.id, { expires: 7, path: '/' })
 			router.push(PAGES.CHAT(serverData.id))
 		} catch (error) {
@@ -125,9 +157,10 @@ const LinkForm = () => {
 					<Controller
 						render={({ field }) => (
 							<Input
-								type={'number'}
+								type={'text'}
+								inputMode={'numeric'}
+								pattern={'[0-9]*'}
 								{...field}
-								onChange={(event) => field.onChange(Number(event.target.value))}
 								label={'Port'}
 								inputId={'port'}
 							/>
