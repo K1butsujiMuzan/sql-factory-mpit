@@ -7,7 +7,13 @@ export type TDictItem = {
 	meaning: string
 }
 
-export async function getDict(dbId: string): Promise<TDictItem[]> {
+export type TDictResponse =
+	| TDictItem[]
+	| { items: TDictItem[] }
+	| { data: TDictItem[] }
+	| Record<string, string>
+
+export async function getDict(dbId: string): Promise<TDictResponse> {
 	try {
 		const response = await fetch(API.GET_DICT(dbId), {
 			method: 'GET',
@@ -25,8 +31,7 @@ export async function getDict(dbId: string): Promise<TDictItem[]> {
 			throw new Error(message)
 		}
 
-		const data: unknown = await response.json().catch(() => null)
-		return Array.isArray(data) ? (data as TDictItem[]) : []
+		return (await response.json().catch(() => null)) as TDictResponse
 	} catch (e) {
 		console.error(e)
 		throw e
