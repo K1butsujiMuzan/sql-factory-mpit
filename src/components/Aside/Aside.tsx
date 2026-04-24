@@ -87,7 +87,7 @@ const Aside = ({ dbId }: Props) => {
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [isHidden, setIsHidden] = useState<boolean>(false)
 	const [listType, setListType] = useState<'none' | 'history' | 'templates'>(
-		'none'
+		'history'
 	)
 	const isTransitioning = useRef(false)
 
@@ -121,9 +121,6 @@ const Aside = ({ dbId }: Props) => {
 	}
 
 	const onMenuButtonClick = (type: 'history' | 'templates') => {
-		if (listType === type) {
-			return setListType('none')
-		}
 		setListType(type)
 	}
 
