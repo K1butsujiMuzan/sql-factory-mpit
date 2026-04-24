@@ -25,7 +25,6 @@ export default function ReportActions({
 	const popupRef = useRef<HTMLDivElement>(null)
 	const buttonRef = useRef<HTMLButtonElement>(null)
 
-	// Закрытие попапа при клике вне его области
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
@@ -95,7 +94,6 @@ export default function ReportActions({
 		const base64 = getChartImage()
 		if (!base64) return
 
-		// Создаём ссылку для скачивания PNG
 		const link = document.createElement('a')
 		link.href = base64
 		const safeTitle = title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30)

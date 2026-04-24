@@ -40,6 +40,7 @@ npm install -g bun
 
 ```bash
 git clone https://github.com/K1butsujiMuzan/sql-factory-mpit.git
+git clone https://github.com/Kuzmin-Aleksey/SQLFactory.git
 cd sql-factory-mpit
 ```
 

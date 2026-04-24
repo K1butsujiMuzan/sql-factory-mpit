@@ -16,8 +16,6 @@ const getPages = (page: number, totalPages: number): (number | '…')[] => {
 		return Array.from({ length: totalPages }, (_, i) => i + 1)
 	}
 
-	// Matches the Figma behavior: show 1 2 3 4 … N near start,
-	// … (N-3) (N-2) (N-1) N near end, and a compact window in the middle.
 	if (page <= 4) {
 		return [1, 2, 3, 4, '…', totalPages]
 	}
