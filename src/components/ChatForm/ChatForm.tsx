@@ -75,7 +75,7 @@ const ChatForm = ({ dbId }: Props) => {
 				return setError('text', { message: serverData.llm_error })
 			}
 			await queryClient.invalidateQueries({
-				queryKey: [QUERY_KEYS.ASIDE_HISTORY]
+				queryKey: [QUERY_KEYS.ASIDE_HISTORY, dbId]
 			})
 			router.push(PAGES.CHAT(dbId, serverData.history_id.toString()))
 		} catch (error) {

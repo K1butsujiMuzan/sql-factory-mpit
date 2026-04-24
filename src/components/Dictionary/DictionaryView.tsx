@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { cn } from '@/lib/cn'
 import DictionaryPagination from '@/components/Dictionary/DictionaryPagination'
 import { PlusIcon } from '@/components/Dictionary/DictionaryIcons'
@@ -15,15 +15,9 @@ import {
 	getDict,
 	updateDictItem
 } from '@/services/dict'
-import {
-	clearDictionaryPageCache,
-	setDictionaryPageCache,
-	useDictionaryCacheStore,
-	type TDictionaryPageCache
-} from '@/stores/dictionary-cache-store'
 
 type DictionaryItem = {
-	id: number
+	id: number | null
 	key: string
 	word: string
 	value: string
@@ -37,6 +31,12 @@ interface Props {
 
 function toDictionaryItems(data: unknown): DictionaryItem[] {
 	if (!data) return []
+
+	if (typeof data === 'object' && data) {
+		const obj = data as Record<string, unknown>
+		if (Array.isArray(obj.items)) return toDictionaryItems(obj.items)
+		if (Array.isArray(obj.data)) return toDictionaryItems(obj.data)
+	}
 
 	if (Array.isArray(data)) {
 		return data
@@ -61,48 +61,38 @@ function toDictionaryItems(data: unknown): DictionaryItem[] {
 			.filter(Boolean) as DictionaryItem[]
 	}
 
+	if (typeof data === 'object') {
+		return Object.entries(data as Record<string, unknown>)
+			.map(([word, meaning]) => {
+				if (typeof meaning !== 'string') return null
+				return {
+					id: null,
+					key: word,
+					word,
+					value: meaning
+				} satisfies DictionaryItem
+			})
+			.filter(Boolean) as DictionaryItem[]
+	}
+
 	return []
 }
 
 const DictionaryView = ({ dbId }: Props) => {
 	const queryClient = useQueryClient()
 
-	const cached: TDictionaryPageCache | null = useDictionaryCacheStore(
-		(state) => state.cache[dbId] ?? null
-	)
-
-	const [page, setPage] = useState(() => cached?.page ?? 1)
-	const isFetchEnabled = !cached || cached.page !== page
+	const [page, setPage] = useState(1)
 
 	const dictQuery = useQuery<unknown, Error, DictionaryItem[]>({
 		queryKey: [QUERY_KEYS.DICTIONARY, dbId],
 		queryFn: async () => (await getDict(dbId)) as unknown,
 		select: (data) => toDictionaryItems(data),
 		placeholderData: [],
-		enabled: isFetchEnabled,
-		staleTime: Infinity,
-		refetchOnMount: false,
+		enabled: true,
+		staleTime: 0,
+		refetchOnMount: true,
 		refetchOnWindowFocus: false
 	})
-
-	useEffect(() => {
-		if (!dictQuery.data) return
-
-		const data = dictQuery.data
-		const totalItems = data.length
-		const start = (page - 1) * PAGE_SIZE
-		const pageItems = data.slice(start, start + PAGE_SIZE)
-		const nextCache: TDictionaryPageCache = {
-			page,
-			totalItems,
-			items: pageItems.map((item) => ({
-				id: item.id,
-				word: item.word,
-				meaning: item.value
-			}))
-		}
-		setDictionaryPageCache(dbId, nextCache)
-	}, [dbId, dictQuery.data, page])
 
 	const [word, setWord] = useState('')
 	const [value, setValue] = useState('')
@@ -114,29 +104,14 @@ const DictionaryView = ({ dbId }: Props) => {
 	const [draftWord, setDraftWord] = useState('')
 	const [draftValue, setDraftValue] = useState('')
 
-	const isUsingCache = !dictQuery.data && !!cached && cached.page === page
-	const cachedPageItems = useMemo(
-		() =>
-			cached?.items.map(({ id, word, meaning }) => ({
-				id,
-				key: String(id),
-				word,
-				value: meaning
-			})) ?? [],
-		[cached]
-	)
-
 	const items = useMemo(() => dictQuery.data ?? [], [dictQuery.data])
-	const totalItems = dictQuery.data
-		? dictQuery.data.length
-		: (cached?.totalItems ?? 0)
+	const totalItems = items.length
 	const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
 
 	const pageItems = useMemo(() => {
-		if (isUsingCache) return cachedPageItems
 		const start = (page - 1) * PAGE_SIZE
 		return items.slice(start, start + PAGE_SIZE)
-	}, [cachedPageItems, isUsingCache, items, page])
+	}, [items, page])
 
 	const canAdd = word.trim().length > 0 && value.trim().length > 0
 
@@ -154,7 +129,6 @@ const DictionaryView = ({ dbId }: Props) => {
 				return setError(res.error)
 			}
 
-			clearDictionaryPageCache(dbId)
 			await queryClient.invalidateQueries({
 				queryKey: [QUERY_KEYS.DICTIONARY, dbId]
 			})
@@ -167,14 +141,14 @@ const DictionaryView = ({ dbId }: Props) => {
 		}
 	}
 
-	const onDelete = async (id: number) => {
+	const onDelete = async (id: number | null) => {
 		setError('')
+		if (!id) return setError('не удалось удалить: нет id элемента')
 		try {
 			const res = await deleteDictItem(id)
 			if (res?.error) {
 				return setError(res.error)
 			}
-			clearDictionaryPageCache(dbId)
 			await queryClient.invalidateQueries({
 				queryKey: [QUERY_KEYS.DICTIONARY, dbId]
 			})
@@ -198,7 +172,7 @@ const DictionaryView = ({ dbId }: Props) => {
 		const nextWord = draftWord.trim()
 		const nextValue = draftValue.trim()
 		if (!nextWord || !nextValue) return
-		if (!editingId) return
+		if (!editingId) return setError('не удалось сохранить: нет id элемента')
 
 		try {
 			const res = await updateDictItem({
@@ -210,7 +184,6 @@ const DictionaryView = ({ dbId }: Props) => {
 			if (res?.error) {
 				return setError(res.error)
 			}
-			clearDictionaryPageCache(dbId)
 			await queryClient.invalidateQueries({
 				queryKey: [QUERY_KEYS.DICTIONARY, dbId]
 			})
@@ -285,6 +258,9 @@ const DictionaryView = ({ dbId }: Props) => {
 						message={dictQuery.error?.message ?? 'ошибка загрузки'}
 						className="mt-2 p-0"
 					/>
+				)}
+				{dictQuery.isFetching && (
+					<div className="mt-2 text-xs text-gray-main">Загрузка...</div>
 				)}
 
 				<ul className="mt-5 flex flex-col gap-3">
