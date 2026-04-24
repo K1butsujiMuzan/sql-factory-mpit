@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { PAGES } from '@/configs/pages.config'
+import { COOKIES } from '@/configs/cookies.config'
 
 interface Props {
 	params: Promise<{ dbId: string }>
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 const CreateTemplatePage = async ({ params }: Props) => {
 	const { dbId } = await params
 	const cookieStore = await cookies()
-	const dbIdFromCookie = cookieStore.get('db_id')?.value
+	const dbIdFromCookie = cookieStore.get(COOKIES.DB_ID)?.value
 
 	if (!dbIdFromCookie) {
 		return redirect(PAGES.MAIN)

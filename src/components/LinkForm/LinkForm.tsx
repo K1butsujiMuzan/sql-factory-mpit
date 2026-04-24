@@ -12,6 +12,8 @@ import { linkFormData } from '@/components/LinkForm/link-form.data'
 import { API } from '@/configs/api.config'
 import { setDb } from '@/stores/db-store'
 import Cookies from 'js-cookie'
+import { COOKIES } from '@/configs/cookies.config'
+import { ERRORS } from '@/configs/errors.config'
 
 const LinkForm = () => {
 	const router = useRouter()
@@ -66,11 +68,11 @@ const LinkForm = () => {
 			}
 
 			setDb(data)
-			Cookies.set('db_id', serverData.id, { expires: 7, path: '/' })
+			Cookies.set(COOKIES.DB_ID, serverData.id, { expires: 7, path: '/' })
 			router.push(PAGES.CHAT(serverData.id))
 		} catch (error) {
 			console.error(error)
-			setError('dbType', { message: 'что-то пошло не так...' })
+			setError('dbType', { message: ERRORS.SOMETHING_WENT_WRONG })
 		}
 	}
 

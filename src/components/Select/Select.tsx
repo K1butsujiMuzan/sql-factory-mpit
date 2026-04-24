@@ -6,22 +6,32 @@ interface Props extends SelectHTMLAttributes<HTMLSelectElement> {
 	list: TSelect[]
 	selectId: string
 	selectLabel: string
+	className?: string
+	selectClassName?: string
 }
 
-const Select = ({ list, selectId, selectLabel, ...rest }: Props) => {
+const Select = ({
+	list,
+	selectId,
+	selectLabel,
+	className,
+	selectClassName,
+	...rest
+}: Props) => {
 	return (
-		<div className={'relative w-full'}>
+		<div className={cn('relative w-full', className)}>
 			<label className={'sr-only'} htmlFor={selectId}>
 				{selectLabel}
 			</label>
 			<select
 				{...rest}
 				id={selectId}
-				className={
-					'peer cursor-pointer appearance-none text-sm text-gray-main outline-none w-full border border-gray-main rounded-20 px-3 py-2.5'
-				}
+				className={cn(
+					'peer cursor-pointer appearance-none text-sm text-gray-main outline-none w-full border border-gray-main rounded-20 px-3 py-2.5',
+					selectClassName
+				)}
 			>
-				{list.map(({ text, value }, index) => (
+				{list.map(({ text, value }) => (
 					<option className={'bg-white'} key={value} value={value}>
 						{text}
 					</option>
@@ -29,7 +39,7 @@ const Select = ({ list, selectId, selectLabel, ...rest }: Props) => {
 			</select>
 			<svg
 				className={
-					'cursor-pointer text-gray-light absolute right-3 top-[calc(50%-4px)] peer-open:rotate-180 transition duration-300'
+					'cursor-pointer text-gray-main absolute right-3 top-[calc(50%-4px)] peer-open:rotate-180 transition duration-300'
 				}
 				role={'img'}
 				aria-hidden={true}

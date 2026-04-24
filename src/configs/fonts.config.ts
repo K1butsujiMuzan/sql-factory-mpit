@@ -4,5 +4,6 @@ export const INTER = Inter({
 	variable: '--font-inter',
 	subsets: ['latin', 'cyrillic'],
 	style: 'normal',
-	display: 'swap'
+	display: 'swap',
+	weight: ['400', '500', '600']
 })

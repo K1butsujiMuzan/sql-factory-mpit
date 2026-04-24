@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '../styles/index.css'
 import { INTER } from '@/configs/fonts.config'
+import MainQueryProvider from '@/providers/MainQueryProvider'
 
 export const metadata: Metadata = {
 	title: {
@@ -18,9 +19,11 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={`${INTER.variable} h-full antialiased`}>
 			<body className="min-h-full flex flex-col font-inter">
-				<div id="root" className={'bg-white text-dark-menu'}>
-					{children}
-				</div>
+				<MainQueryProvider>
+					<div id="root" className={'bg-white text-dark-menu'}>
+						{children}
+					</div>
+				</MainQueryProvider>
 			</body>
 		</html>
 	)

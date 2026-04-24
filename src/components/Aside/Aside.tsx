@@ -11,25 +11,15 @@ import { usePathname } from 'next/navigation'
 import AsideMiniLink from '@/components/Aside/AsideMiniLink'
 import CreateTemplateLink from '@/components/Aside/CreateTemplateLink'
 import AsideToggleButton from '@/components/Aside/AsideToggleButton'
+import { useQuery } from '@tanstack/react-query'
+import { QUERY_KEYS } from '@/configs/query-keys.config'
+import { API } from '@/configs/api.config'
+import type { TAsideHistory } from '@/shared/types/aside-history.type'
+import type { TAsideTemplate } from '@/shared/types/aside-templates.type'
 
 interface Props {
 	dbId: string
 }
-
-const fakeHistory: TAsideLink[] = [
-	{
-		id: '123123',
-		name: 'Название истории'
-	},
-	{
-		id: 'dkfjgkdflgj',
-		name: 'Какой-то текст'
-	},
-	{
-		id: '438',
-		name: 'бла бла бла'
-	}
-]
 
 const fakeTemplates: TAsideLink[] = [
 	{
@@ -47,6 +37,52 @@ const fakeTemplates: TAsideLink[] = [
 ]
 
 const Aside = ({ dbId }: Props) => {
+	const historyQuery = useQuery({
+		queryFn: async () => {
+			try {
+				const response = await fetch(API.GET_HISTORY(dbId), {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+					}
+				})
+
+				if (!response.ok) {
+					return []
+				}
+
+				return (await response.json()) as TAsideHistory[]
+			} catch (error) {
+				console.error(error)
+				return []
+			}
+		},
+		queryKey: [QUERY_KEYS.ASIDE_HISTORY]
+	})
+
+	const templateQuery = useQuery({
+		queryFn: async () => {
+			try {
+				const response = await fetch(API.GET_TEMPLATES(dbId), {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+					}
+				})
+
+				if (!response.ok) {
+					return []
+				}
+
+				return (await response.json()) as TAsideTemplate[]
+			} catch (error) {
+				console.error(error)
+				return []
+			}
+		},
+		queryKey: [QUERY_KEYS.ASIDE_TEMPLATES]
+	})
+
 	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const [isHidden, setIsHidden] = useState<boolean>(false)
 	const [listType, setListType] = useState<'none' | 'history' | 'templates'>(
@@ -116,7 +152,7 @@ const Aside = ({ dbId }: Props) => {
 				</div>
 				<ul
 					className={
-						'flex flex-col gap-2.5 pb-5 pr-5.5 pl-3 border-b border-gray-main'
+						'flex flex-col gap-2.5 pb-5 pr-5.5 pl-3 border-b border-gray-100'
 					}
 				>
 					{pathname === PAGES.CHAT(dbId) ? (
@@ -146,25 +182,31 @@ const Aside = ({ dbId }: Props) => {
 				{listType !== 'none' && (
 					<ul className={'flex flex-col gap-5 pt-5 pl-2 pr-3'}>
 						{listType === 'history' &&
-							fakeHistory.map(({ id, name }) => (
+							historyQuery.data &&
+							historyQuery.data.length > 0 &&
+							historyQuery.data.map(({ id, title }) => (
 								<AsideMiniLink
-									isActive={pathname === PAGES.CHAT(dbId, id)}
+									isActive={pathname === PAGES.CHAT(dbId, id.toString())}
 									key={id}
-									href={PAGES.CHAT(dbId, id)}
-									label={name}
+									href={PAGES.CHAT(dbId, id.toString())}
+									label={title}
 								/>
 							))}
 						{listType === 'templates' && (
 							<>
 								<CreateTemplateLink dbId={dbId} />
-								{fakeTemplates.map(({ id, name }) => (
-									<AsideMiniLink
-										isActive={pathname === PAGES.TEMPLATE(dbId, id)}
-										key={id}
-										href={PAGES.TEMPLATE(dbId, id)}
-										label={name}
-									/>
-								))}
+								{templateQuery.data &&
+									templateQuery.data.length > 0 &&
+									templateQuery.data.map(({ id, title }) => (
+										<AsideMiniLink
+											isActive={
+												pathname === PAGES.TEMPLATE(dbId, id.toString())
+											}
+											key={id}
+											href={PAGES.TEMPLATE(dbId, id.toString())}
+											label={title}
+										/>
+									))}
 							</>
 						)}
 					</ul>

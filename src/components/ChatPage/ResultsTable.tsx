@@ -23,7 +23,7 @@ export default function ResultsTable({ header, data }: Props) {
 
 	return (
 		<>
-			<div className="group w-full h-[50vh] bg-white rounded-[10px] border border-[#ECECEC] overflow-hidden flex flex-col relative">
+			<div className="group w-full bg-white flex-1 rounded-[10px] border border-[#ECECEC] overflow-hidden flex flex-col relative">
 				<button
 					type="button"
 					aria-label={isFullscreen ? 'Свернуть таблицу' : 'Развернуть таблицу'}
@@ -31,6 +31,8 @@ export default function ResultsTable({ header, data }: Props) {
 					className="absolute right-3 top-3 z-20 w-9 h-9 rounded-full border border-[#0000001A] bg-icon-dark text-white shadow-sm hover:shadow flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-opacity"
 				>
 					<svg
+						role={'img'}
+						aria-hidden={true}
 						width="16"
 						height="16"
 						viewBox="0 0 16 16"
@@ -111,6 +113,8 @@ export default function ResultsTable({ header, data }: Props) {
 							className="absolute right-3 top-3 z-30 w-9 h-9 rounded-full border border-[#0000001A] bg-icon-dark text-white shadow-sm hover:shadow flex items-center justify-center"
 						>
 							<svg
+								role={'img'}
+								aria-hidden={true}
 								width="16"
 								height="16"
 								viewBox="0 0 16 16"
@@ -180,4 +184,3 @@ export default function ResultsTable({ header, data }: Props) {
 		</>
 	)
 }
-

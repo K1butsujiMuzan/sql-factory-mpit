@@ -5,10 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Input from '@/components/Input/Input'
 import ErrorMessage from '@/components/ErrorMessage/ErrorMessage'
 import { chatSchema, type TChat } from '@/shared/schemes/chat.schema'
-import { getDbData, setDb } from '@/stores/db-store'
+import { getDbData } from '@/stores/db-store'
 import { API } from '@/configs/api.config'
 import { PAGES } from '@/configs/pages.config'
 import { useRouter } from 'next/navigation'
+import type { TPrompt } from '@/shared/types/prompt.type'
+import { useQueryClient } from '@tanstack/react-query'
+import { QUERY_KEYS } from '@/configs/query-keys.config'
+import { ERRORS } from '@/configs/errors.config'
+import Loader from '@/components/Loader/Loader'
 
 interface Props {
 	dbId: string
@@ -30,6 +35,8 @@ const ChatForm = ({ dbId }: Props) => {
 	})
 
 	const router = useRouter()
+
+	const queryClient = useQueryClient()
 
 	const onFormSubmit: SubmitHandler<TChat> = async (data) => {
 		const dbData = getDbData()
@@ -54,19 +61,26 @@ const ChatForm = ({ dbId }: Props) => {
 			})
 
 			if (!response.ok) {
-				return setError('text', { message: 'что-то пошло не так...' })
+				return setError('text', { message: ERRORS.SOMETHING_WENT_WRONG })
 			}
 
-			const serverData: { id: string } | { error: string } =
+			const serverData: TPrompt | { error: string } | { llm_error: string } =
 				await response.json()
 
 			if ('error' in serverData) {
 				return setError('text', { message: serverData.error })
 			}
-			console.log(serverData)
+
+			if ('llm_error' in serverData) {
+				return setError('text', { message: serverData.llm_error })
+			}
+			await queryClient.invalidateQueries({
+				queryKey: [QUERY_KEYS.ASIDE_HISTORY]
+			})
+			router.push(PAGES.CHAT(dbId, serverData.history_id.toString()))
 		} catch (error) {
 			console.error(error)
-			setError('text', { message: 'что-то пошло не так...' })
+			setError('text', { message: ERRORS.SOMETHING_WENT_WRONG })
 		}
 	}
 
@@ -100,21 +114,24 @@ const ChatForm = ({ dbId }: Props) => {
 						'text-sm py-1.5 px-1.5 text-icon-dark bg-accent-light rounded-full disabled:cursor-not-allowed!'
 					}
 				>
-					<svg
-						role={'img'}
-						aria-hidden={true}
-						className={'text-dark'}
-						width="14"
-						height="14"
-						viewBox="0 0 13 13"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M9.86124 4.26143C11.4223 5.04197 12.2028 5.43257 12.2028 6.0506C12.2025 6.66831 11.4223 7.05888 9.86193 7.83908L4.0283 10.7559C1.80992 11.8651 0.700724 12.4192 0.191004 11.9098C-0.318637 11.4001 0.235625 10.291 1.34489 8.07248L1.85657 7.0498L7.2821 7.05049C7.83412 7.05035 8.28176 6.6026 8.28199 6.0506C8.28199 5.49841 7.83426 5.05085 7.2821 5.05071L1.85657 5.05002L1.34558 4.02803C0.236475 1.80982 -0.31883 0.700516 0.190314 0.190729C0.699929 -0.318886 1.80932 0.235464 4.02761 1.34461L9.86124 4.26143Z"
-							fill="#222222"
-						/>
-					</svg>
+					{!isSubmitting && (
+						<svg
+							role={'img'}
+							aria-hidden={true}
+							className={''}
+							width="14"
+							height="14"
+							viewBox="0 0 13 13"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M9.86124 4.26143C11.4223 5.04197 12.2028 5.43257 12.2028 6.0506C12.2025 6.66831 11.4223 7.05888 9.86193 7.83908L4.0283 10.7559C1.80992 11.8651 0.700724 12.4192 0.191004 11.9098C-0.318637 11.4001 0.235625 10.291 1.34489 8.07248L1.85657 7.0498L7.2821 7.05049C7.83412 7.05035 8.28176 6.6026 8.28199 6.0506C8.28199 5.49841 7.83426 5.05085 7.2821 5.05071L1.85657 5.05002L1.34558 4.02803C0.236475 1.80982 -0.31883 0.700516 0.190314 0.190729C0.699929 -0.318886 1.80932 0.235464 4.02761 1.34461L9.86124 4.26143Z"
+								fill="#222222"
+							/>
+						</svg>
+					)}
+					{isSubmitting && <Loader className={'w-3.5'} />}
 				</button>
 			</div>
 			{!!errors.text?.message && <ErrorMessage message={errors.text.message} />}
