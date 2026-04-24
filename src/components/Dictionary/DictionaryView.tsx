@@ -1,104 +1,208 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/cn'
 import DictionaryPagination from '@/components/Dictionary/DictionaryPagination'
 import { PlusIcon } from '@/components/Dictionary/DictionaryIcons'
 import DictionaryRowActions from '@/components/Dictionary/DictionaryRowActions'
 import Input from '@/components/Input/Input'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { QUERY_KEYS } from '@/configs/query-keys.config'
+import { addDictItem, deleteDictItem, getDict, updateDictItem } from '@/services/dict'
+import {
+	clearDictionaryPageCache,
+	setDictionaryPageCache,
+	useDictionaryCacheStore,
+	type TDictionaryPageCache
+} from '@/stores/dictionary-cache-store'
 
 type DictionaryItem = {
-	id: string
+	id: number
+	key: string
 	word: string
 	value: string
 }
 
 const PAGE_SIZE = 6
 
-const seed: DictionaryItem[] = Array.from({ length: 60 }, (_, i) => {
-	const idx = i + 1
-	const word =
-		idx % 5 === 0
-			? 'INDEX'
-			: idx % 4 === 0
-				? 'JOIN'
-				: idx % 3 === 0
-					? 'SELECT'
-					: 'SQL'
-	const value =
-		idx % 6 === 0
-			? 'Если представить базу данных как огромную цифровую картотеку или набор связанных таблиц, то SQL — это способ «поговорить» с ней: попросить найти нужный документ, добавить новую запись или удалить старую.'
-			: idx % 5 === 0
-				? 'Структура данных для ускорения поиска строк (ценой места и скорости записи).'
-				: idx % 4 === 0
-					? 'Оператор, который соединяет строки из двух или более таблиц по условию.'
-					: 'Если представить базу данных как огромную цифровую картотеку или набор связанных таблиц.'
+interface Props {
+	dbId: string
+}
 
-	return {
-		id: `seed-${idx}`,
-		word,
-		value
+function toDictionaryItems(data: unknown): DictionaryItem[] {
+	if (!data) return []
+
+	if (Array.isArray(data)) {
+		return data
+			.map((x) => {
+				if (typeof x !== 'object' || !x) return null
+				const item = x as Partial<{ id: unknown; word: unknown; meaning: unknown }>
+				const id = typeof item.id === 'number' ? item.id : Number(item.id)
+				const word = typeof item.word === 'string' ? item.word : ''
+				const meaning = typeof item.meaning === 'string' ? item.meaning : ''
+				if (!Number.isFinite(id) || !word || !meaning) return null
+				return { id, key: String(id), word, value: meaning } satisfies DictionaryItem
+			})
+			.filter(Boolean) as DictionaryItem[]
 	}
-})
 
-const DictionaryView = () => {
-	const [items, setItems] = useState<DictionaryItem[]>(seed)
-	const [page, setPage] = useState(1)
+	return []
+}
+
+const DictionaryView = ({ dbId }: Props) => {
+	const queryClient = useQueryClient()
+
+	const cached: TDictionaryPageCache | null = useDictionaryCacheStore(
+		(state) => state.cache[dbId] ?? null
+	)
+
+	const [page, setPage] = useState(() => cached?.page ?? 1)
+	const isFetchEnabled = !cached || cached.page !== page
+
+	const dictQuery = useQuery<unknown, Error, DictionaryItem[]>({
+		queryKey: [QUERY_KEYS.DICTIONARY, dbId],
+		queryFn: async () => (await getDict(dbId)) as unknown,
+		select: (data) => toDictionaryItems(data),
+		placeholderData: [],
+		enabled: isFetchEnabled,
+		staleTime: Infinity,
+		refetchOnMount: false,
+		refetchOnWindowFocus: false
+	})
+
+	useEffect(() => {
+		if (!dictQuery.data) return
+
+		const data = dictQuery.data
+		const totalItems = data.length
+		const start = (page - 1) * PAGE_SIZE
+		const pageItems = data.slice(start, start + PAGE_SIZE)
+		const nextCache: TDictionaryPageCache = {
+			page,
+			totalItems,
+			items: pageItems.map((item) => ({
+				id: item.id,
+				word: item.word,
+				meaning: item.value
+			}))
+		}
+		setDictionaryPageCache(dbId, nextCache)
+	}, [dbId, dictQuery.data, page])
 
 	const [word, setWord] = useState('')
 	const [value, setValue] = useState('')
 
-	const [editingId, setEditingId] = useState<string | null>(null)
+	const [error, setError] = useState('')
+
+	const [editingKey, setEditingKey] = useState<string | null>(null)
+	const [editingId, setEditingId] = useState<number | null>(null)
 	const [draftWord, setDraftWord] = useState('')
 	const [draftValue, setDraftValue] = useState('')
 
-	const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
+	const isUsingCache = !dictQuery.data && !!cached && cached.page === page
+	const cachedPageItems = useMemo(
+		() =>
+			cached?.items.map(({ id, word, meaning }) => ({
+				id,
+				key: String(id),
+				word,
+				value: meaning
+			})) ?? [],
+		[cached]
+	)
+
+	const items = useMemo(() => dictQuery.data ?? [], [dictQuery.data])
+	const totalItems = dictQuery.data ? dictQuery.data.length : cached?.totalItems ?? 0
+	const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
 
 	const pageItems = useMemo(() => {
+		if (isUsingCache) return cachedPageItems
 		const start = (page - 1) * PAGE_SIZE
 		return items.slice(start, start + PAGE_SIZE)
-	}, [items, page])
+	}, [cachedPageItems, isUsingCache, items, page])
 
 	const canAdd = word.trim().length > 0 && value.trim().length > 0
 
-	const onAdd = () => {
+	const onAdd = async () => {
+		setError('')
 		if (!canAdd) return
-		const newItem: DictionaryItem = {
-			id: crypto.randomUUID(),
-			word: word.trim(),
-			value: value.trim()
+		try {
+			const res = await addDictItem({
+				db: dbId,
+				word: word.trim(),
+				meaning: value.trim()
+			})
+
+			if ('error' in res) {
+				return setError(res.error)
+			}
+
+			clearDictionaryPageCache(dbId)
+			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DICTIONARY, dbId] })
+			setWord('')
+			setValue('')
+			setPage(1)
+		} catch (e) {
+			console.error(e)
+			setError('ошибка сохранения')
 		}
-		setItems((prev) => [newItem, ...prev])
-		setWord('')
-		setValue('')
-		setPage(1)
 	}
 
-	const onDelete = (id: string) => {
-		setItems((prev) => prev.filter((x) => x.id !== id))
+	const onDelete = async (id: number) => {
+		setError('')
+		try {
+			const res = await deleteDictItem(id)
+			if (res?.error) {
+				return setError(res.error)
+			}
+			clearDictionaryPageCache(dbId)
+			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DICTIONARY, dbId] })
+		} catch (e) {
+			console.error(e)
+			setError('ошибка удаления')
+		}
 	}
 
 	const onStartEdit = (item: DictionaryItem) => {
+		setError('')
+		setEditingKey(item.key)
 		setEditingId(item.id)
 		setDraftWord(item.word)
 		setDraftValue(item.value)
 	}
 
-	const onSaveEdit = () => {
-		if (!editingId) return
+	const onSaveEdit = async () => {
+		setError('')
+		if (!editingKey) return
 		const nextWord = draftWord.trim()
 		const nextValue = draftValue.trim()
 		if (!nextWord || !nextValue) return
+		if (!editingId) return
 
-		setItems((prev) =>
-			prev.map((x) =>
-				x.id === editingId ? { ...x, word: nextWord, value: nextValue } : x
-			)
-		)
-		setEditingId(null)
+		try {
+			const res = await updateDictItem({
+				id: editingId,
+				db: dbId,
+				word: nextWord,
+				meaning: nextValue
+			})
+			if (res?.error) {
+				return setError(res.error)
+			}
+			clearDictionaryPageCache(dbId)
+			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.DICTIONARY, dbId] })
+			setEditingKey(null)
+			setEditingId(null)
+		} catch (e) {
+			console.error(e)
+			setError('ошибка сохранения')
+		}
 	}
 
 	const onCancelEdit = () => {
+		setError('')
+		setEditingKey(null)
 		setEditingId(null)
 	}
 
@@ -138,10 +242,12 @@ const DictionaryView = () => {
 					<button
 						type="button"
 						onClick={onAdd}
-						disabled={!canAdd}
+						disabled={!canAdd || dictQuery.isFetching}
 						className={cn(
 							'h-[30px] w-full rounded-[10px] flex items-center justify-center transition bg-accent',
-							canAdd ? 'hover:opacity-90' : 'cursor-not-allowed'
+							canAdd && !dictQuery.isFetching
+								? 'hover:opacity-90'
+								: 'cursor-not-allowed'
 						)}
 						aria-label="Добавить"
 					>
@@ -149,12 +255,20 @@ const DictionaryView = () => {
 					</button>
 				</div>
 
+				{error.length > 0 && <ErrorMessage message={error} className="mt-2 p-0" />}
+				{dictQuery.isError && (
+					<ErrorMessage
+						message={dictQuery.error?.message ?? 'ошибка загрузки'}
+						className="mt-2 p-0"
+					/>
+				)}
+
 				<ul className="mt-5 flex flex-col gap-3">
 					{pageItems.map((item) => {
-						const isEditing = editingId === item.id
+						const isEditing = editingKey === item.key
 						return (
 							<li
-								key={item.id}
+								key={item.key}
 								className="grid grid-cols-[220px_1fr_20px_76px] items-stretch gap-0"
 							>
 								<div className="col-span-2 bg-gray-100 rounded-[10px] overflow-hidden flex items-stretch min-h-[72px]">
@@ -226,7 +340,9 @@ const DictionaryView = () => {
 					className="mt-auto pt-6"
 					page={page}
 					totalPages={totalPages}
-					onPageChange={setPage}
+					onPageChange={(nextPage) => {
+						setPage(nextPage)
+					}}
 				/>
 			</div>
 		</section>

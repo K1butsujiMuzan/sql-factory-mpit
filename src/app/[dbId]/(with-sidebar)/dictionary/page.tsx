@@ -5,8 +5,9 @@ export const metadata: Metadata = {
 	title: 'Словарь'
 }
 
-const DictionaryPage = () => {
-	return <DictionaryView />
+const DictionaryPage = async ({ params }: { params: Promise<{ dbId: string }> }) => {
+	const { dbId } = await params
+	return <DictionaryView dbId={dbId} />
 }
 
 export default DictionaryPage

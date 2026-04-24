@@ -1,4 +1,9 @@
-const url: string = process.env.BASE_URL ?? 'http://localhost:8080/api'
+const baseUrl: string =
+	process.env.NEXT_PUBLIC_BASE_URL ??
+	process.env.BASE_URL ??
+	'http://localhost:8080'
+
+const url = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`
 
 export const API = {
 	GET_DB_ID: `${url}/executor/test-connect`,
@@ -6,5 +11,8 @@ export const API = {
 	CREATE_TEMPLATE: `${url}/template`,
 	GET_HISTORY: (dbId: string) => `${url}/history?db=${dbId}`,
 	GET_HISTORY_ITEM: (id: string) => `${url}/history/item?id=${id}`,
-	GET_TEMPLATES: (dbId: string) => `${url}/templates?db=${dbId}`
+	GET_TEMPLATES: (dbId: string) => `${url}/templates?db=${dbId}`,
+	GET_DICT: (dbId: string) => `${url}/dict?db=${dbId}`,
+	DICT_ITEM: `${url}/dict/item`,
+	DELETE_DICT_ITEM: (id: number) => `${url}/dict/item?id=${id}`
 }
