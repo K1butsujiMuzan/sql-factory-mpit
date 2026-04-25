@@ -9,16 +9,39 @@ interface Props {
 }
 
 export default function ChatPageView({ history }: Props) {
-	const { header, data } = history.table_data
+	const { table_data, query, title, chart_type, reasoning } = history
+
+	if (!table_data) {
+		return (
+			<div className="w-full h-full p-5 flex items-center justify-center">
+				<div className="text-center space-y-4 max-w-2xl">
+					<p className="text-lg font-medium">Нет данных</p>
+					<p className="text-sm text-gray-500">
+						Запрос не вернул данных для отображения.
+					</p>
+					{query && (
+						<pre className="bg-gray-50 rounded-lg p-4 text-left text-sm overflow-auto whitespace-pre-wrap">
+							{query}
+						</pre>
+					)}
+					{reasoning && reasoning.length > 0 && (
+						<Thinking reasoning={reasoning} />
+					)}
+				</div>
+			</div>
+		)
+	}
+
+	const { header, data } = table_data
 
 	return (
 		<ReportLayout
 			header={header}
 			data={data}
-			query={history.query}
-			title={history.title}
-			chartType={history.chart_type}
-			showThinking={<Thinking reasoning={history.reasoning} />}
+			query={query}
+			title={title}
+			chartType={chart_type}
+			showThinking={<Thinking reasoning={reasoning} />}
 		/>
 	)
 }

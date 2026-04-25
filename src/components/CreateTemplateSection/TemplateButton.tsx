@@ -46,7 +46,7 @@ export default function TemplateButton({ loadingType, type, onClick }: Props) {
 				}
 			)}
 		>
-			{isLoading ? <Loader /> : icons[type]}
+			{isLoading ? <Loader className={'w-4'} /> : icons[type]}
 			{labels[type]}
 		</button>
 	)

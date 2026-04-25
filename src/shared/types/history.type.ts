@@ -11,7 +11,7 @@ export type THistory = {
 	table_data: {
 		header: string[]
 		data: string[][]
-	}
+	} | null
 	chart_type: TChartType
 	reasoning: string[]
 }
