@@ -1,1 +1,1 @@
-export type TOperationType = 'start' | 'save' | 'delete' | 'none'
+export type TOperationType = 'run' | 'save' | 'delete'

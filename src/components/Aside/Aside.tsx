@@ -6,16 +6,18 @@ import Logo from '@/components/Logo/Logo'
 import AsideLink from '@/components/Aside/AsideLink'
 import { PAGES } from '@/configs/pages.config'
 import AsideButton from '@/components/Aside/AsideButton'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import AsideMiniLink from '@/components/Aside/AsideMiniLink'
 import CreateTemplateLink from '@/components/Aside/CreateTemplateLink'
 import AsideToggleButton from '@/components/Aside/AsideToggleButton'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { QUERY_KEYS } from '@/configs/query-keys.config'
 import { API } from '@/configs/api.config'
 import type { TAsideHistory } from '@/shared/types/aside-history.type'
 import type { TAsideTemplate } from '@/shared/types/aside-templates.type'
 import { formatIsoUtcDatesInText } from '@/lib/format-iso-date'
+import { EditIcon } from '@/components/Aside/EditIcon'
+import { DeleteIcon } from '@/components/Aside/DeleteIcon'
 
 interface Props {
 	dbId: string
@@ -80,6 +82,8 @@ const Aside = ({ dbId }: Props) => {
 			setIsShown(true)
 		}
 	}
+	const router = useRouter()
+	const queryClient = useQueryClient()
 
 	return (
 		<>
@@ -151,18 +155,50 @@ const Aside = ({ dbId }: Props) => {
 						{listType === 'templates' && (
 							<>
 								<CreateTemplateLink dbId={dbId} />
-								{templateQuery.data?.map(({ id, title }) => (
-									<AsideMiniLink
-										isActive={pathname === PAGES.TEMPLATE(dbId, id.toString())}
-										key={id}
-										href={PAGES.TEMPLATE(dbId, id.toString())}
-										label={
-											typeof title === 'string'
-												? formatIsoUtcDatesInText(title)
-												: String(title)
+								{templateQuery.data?.map(({ id, title, query, chart_type }) => {
+									const templateUrl = PAGES.TEMPLATE(dbId, id.toString())
+									const isActive = pathname === templateUrl
+
+									const handleEdit = () => {
+										const params = new URLSearchParams({
+											title: title || '',
+											query: query || '',
+											chartType: chart_type || 'none',
+											templateId: id.toString()
+										}).toString()
+										router.push(`${PAGES.NEW_TEMPLATE(dbId)}?${params}`)
+									}
+
+									const handleDelete = async () => {
+										try {
+											await fetch(API.DELETE_TEMPLATE(id.toString()), {
+												method: 'DELETE'
+											})
+											await queryClient.invalidateQueries({
+												queryKey: [QUERY_KEYS.ASIDE_TEMPLATES, dbId]
+											})
+										} catch (err) {
+											console.error(err)
 										}
-									/>
-								))}
+									}
+
+									return (
+										<AsideMiniLink
+											key={id}
+											href={templateUrl}
+											label={
+												typeof title === 'string'
+													? formatIsoUtcDatesInText(title)
+													: String(title)
+											}
+											isActive={isActive}
+											editIcon={<EditIcon />}
+											onEditClick={handleEdit}
+											deleteIcon={<DeleteIcon />}
+											onDeleteClick={handleDelete}
+										/>
+									)
+								})}
 							</>
 						)}
 					</ul>

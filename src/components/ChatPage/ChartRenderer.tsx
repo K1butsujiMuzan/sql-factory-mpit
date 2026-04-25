@@ -19,6 +19,7 @@ import {
 import { Line, Pie, Bar } from 'react-chartjs-2'
 import type { TChartType } from '@/constants/chart-types'
 import { formatIsoUtcDate } from '@/lib/format-iso-date'
+import { cn } from '@/lib/cn'
 
 ChartJS.register(
 	CategoryScale,
@@ -159,7 +160,13 @@ const ChartRenderer = forwardRef<ChartRendererRef, ChartRendererProps>(
 		}
 
 		return (
-			<div className="w-full h-full">
+			<div
+				className={cn('w-full h-full', {
+					'text-center flex justify-center items-center': chartType === 'none'
+				})}
+			>
+				{chartType === 'none' && <p>График отсутствует</p>}
+
 				{chartType === 'line' && (
 					<Line
 						ref={setChartRef}

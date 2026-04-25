@@ -24,6 +24,53 @@
 	--font-inter: var(--font-inter);
 }
 
+@keyframes shimmer {
+	0% {
+		background-position: 100% 0;
+	}
+	100% {
+		background-position: -100% 0;
+	}
+}
+
+.animate-shimmer {
+	background: linear-gradient(
+		90deg,
+		#bdbdbd 0%,
+		#bdbdbd 40%,
+		#ebebeb 50%,
+		#bdbdbd 60%,
+		#bdbdbd 100%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-shimmer-glow {
+	position: relative;
+	overflow: hidden;
+}
+
+.animate-shimmer-glow::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(235, 235, 235, 0.6),
+		transparent
+	);
+	transform: translateX(-100%);
+	animation: shimmer-glow 1.5s infinite;
+}
+
+@keyframes shimmer-glow {
+	100% {
+		transform: translateX(100%);
+	}
+}
+
 .skeleton-shimmer {
 	position: relative;
 	overflow: hidden;
@@ -37,10 +84,4 @@
 	transform: translateX(-100%);
 	background: linear-gradient(90deg, transparent, #ebebeb, transparent);
 	animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-	100% {
-		transform: translateX(100%);
-	}
 }

@@ -41,7 +41,10 @@ export default function ReportActions({
 		return () => document.removeEventListener('mousedown', handleClickOutside)
 	}, [])
 
+	const hasData = header.length > 0 && data.length > 0
+
 	const downloadExcel = useCallback(() => {
+		if (!hasData) return
 		const worksheetData = [
 			header.map(formatIsoUtcDate),
 			...data.map((row) => row.map(formatIsoUtcDate))
@@ -50,9 +53,10 @@ export default function ReportActions({
 		const workbook = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Данные')
 
-		const safeTitle = title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30)
+		const safeTitle =
+			title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30) || 'table'
 		XLSX.writeFile(workbook, `${safeTitle}.xlsx`)
-	}, [header, data, title])
+	}, [header, data, title, hasData])
 
 	const getChartImage = useCallback((): string | null => {
 		const base64 = chartRef?.current?.getImage?.()
@@ -90,7 +94,8 @@ export default function ReportActions({
 			'FAST'
 		)
 
-		const safeTitle = title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30)
+		const safeTitle =
+			title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30) || 'chart'
 		pdf.save(`${safeTitle}_chart.pdf`)
 	}, [getChartImage, title])
 
@@ -100,7 +105,8 @@ export default function ReportActions({
 
 		const link = document.createElement('a')
 		link.href = base64
-		const safeTitle = title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30)
+		const safeTitle =
+			title.replace(/[^a-zа-яё0-9]/gi, '_').substring(0, 30) || 'chart'
 		link.download = `${safeTitle}_chart.png`
 		document.body.appendChild(link)
 		link.click()
@@ -118,13 +124,15 @@ export default function ReportActions({
 
 	return (
 		<>
-			<button
-				type="button"
-				onClick={downloadExcel}
-				className="bg-accent text-white py-1.5 px-4 rounded-10 font-medium"
-			>
-				Скачать таблицу
-			</button>
+			{hasData && (
+				<button
+					type="button"
+					onClick={downloadExcel}
+					className="bg-accent text-white py-1.5 px-4 rounded-10 font-medium"
+				>
+					Скачать таблицу
+				</button>
+			)}
 			{chartType !== 'none' && (
 				<div className="relative">
 					<button
