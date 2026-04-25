@@ -15,6 +15,7 @@ import { setDb } from '@/stores/db-store'
 import Cookies from 'js-cookie'
 import { COOKIES } from '@/configs/cookies.config'
 import { ERRORS } from '@/configs/errors.config'
+import Loader from '@/components/Loader/Loader'
 
 const linkFormSchema = z.object({
 	host: z.string().min(1, { message: 'Хост обязателен' }),
@@ -115,7 +116,7 @@ const LinkForm = () => {
 
 	return (
 		<form
-			className={'w-full flex flex-col gap-7.5 items-center'}
+			className={'w-full flex flex-col gap-5 items-center'}
 			onSubmit={handleSubmit(onFormSubmit)}
 		>
 			<div className={'flex gap-1 flex-col w-full'}>
@@ -246,10 +247,10 @@ const LinkForm = () => {
 				disabled={isSubmitting}
 				type={'submit'}
 				className={
-					'pt-1.5 pb-2 bg-accent text-white rounded-20 max-w-71.5 w-full disabled:cursor-not-allowed!'
+					'flex gap-2 justify-center pt-1.5 pb-2 bg-accent not-disabled:hover:bg-gray-main text-white rounded-20 max-w-71.5 w-full disabled:cursor-not-allowed! transition duration-300'
 				}
 			>
-				Войти
+				{isSubmitting ? <Loader className={'w-4 text-white'} /> : 'Войти'}
 			</button>
 		</form>
 	)

@@ -5,5 +5,5 @@ export const INTER = Inter({
 	subsets: ['latin', 'cyrillic'],
 	style: 'normal',
 	display: 'swap',
-	weight: ['400', '500', '600']
+	weight: ['400', '500', '600', '700']
 })

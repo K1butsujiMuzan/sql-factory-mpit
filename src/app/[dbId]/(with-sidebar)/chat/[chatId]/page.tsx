@@ -16,7 +16,5 @@ export default async function ChatPage({ params }: Props) {
 		return redirect(PAGES.CHAT(dbId))
 	}
 
-	console.log(data)
-
 	return <ChatPageView history={data} />
 }
